@@ -1,0 +1,2 @@
+class Preference:
+    pass
