@@ -1,11 +1,18 @@
 class Modify:
-    
-    def__init__(self) -> None:
-        pass
-    
-    def create_task(self):
-        pass
-    
+    def create_task(self, 
+        description: str, 
+        creation_date: date, 
+        relevance_level: int,
+        is_done: bool,
+        color: str,
+        due_date: date
+    ) -> None:
+        self.tasks.append(Task(
+            is_done=is_done, color=color, due_date=due_date, 
+            description=description, creation_date=creation_date, 
+            relevance_level=relevance_level)
+            )
+
     def create_meeting(self):
         pass
     
