@@ -1,7 +1,7 @@
 from item import Item
 class Note(Item):
     def__init__(self,font: str, font_size: float, font_color:  color, background_color: color) -> None:
-        super.__init__(description: str, creation_date: date, relevance_level: int)
+        super.__init__(description =  str, creation_date =  date, relevance_level =  int)
         
         self.font = font
         self.font_size = font_size
