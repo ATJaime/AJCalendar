@@ -8,12 +8,12 @@ class Meeting(Item):
         creation_date: date, 
         relevance_level: int
     ) -> None:
-        super.__init__(description=description,
+        super().__init__(description=description,
             creation_date=creation_date,
             relevance_level=relevance_level
         )
         self.link = link
         self.meeting_date = meeting_date
     
-    def cancel_meeting(self) -> None
+    def cancel_meeting(self) -> None:
         pass

@@ -1,18 +1,21 @@
 from datetime import date
+from datetime import datetime
 from item import Item
 class Task(Item):
-    def __init__(self, 
-        is_done: bool = False, 
+    def __init__(self,
+        description: str, 
+        relevance_level: int,  
         color: str, 
         due_date: date, 
-        description: str, 
-        creation_date: date, 
-        relevance_level: int
+        is_done: bool = False
     )-> None:
-        super.__init__(description=description, creation_date=creation_date, relevance_level=relevance_level)
-        self.is_done = is_done
+        super().__init__(description=description,  
+            relevance_level=relevance_level,
+            creation_date=datetime.now()
+        )
         self.color = color
         self.due_date = due_date
+        self.is_done = is_done
     
     def set_state(self, new_state: bool) -> None:
         self.is_done = new_state

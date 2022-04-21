@@ -1,17 +1,20 @@
+from datetime import date
+from task import Task
+from meeting import Meeting
+from note import Note
 class Modify:
     def create_task(self, 
         description: str, 
-        creation_date: date, 
         relevance_level: int,
-        is_done: bool,
         color: str,
-        due_date: date
+        due_date: date,
+        is_done: bool
     ) -> None:
         self.tasks.append(Task(
-            is_done=is_done, color=color, due_date=due_date, 
-            description=description, creation_date=creation_date, 
-            relevance_level=relevance_level)
+            description=description, relevance_level=relevance_level,
+            color=color, due_date=due_date, is_done=is_done
             )
+        )
 
     def create_meeting(self):
         pass
