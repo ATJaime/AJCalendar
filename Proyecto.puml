@@ -1,0 +1,103 @@
+@startuml Proyecto 
+
+class Password{
+    password: str
+    hide()
+    show()
+    save()
+    delete()
+    update()
+    validate()
+}
+
+class User{
+    username: str
+    pass: Password
+    points: int
+
+    log_in()
+    log_out() 
+    earn_points()
+    lose_points()   
+}
+
+abstract class "Item"{
+    description: str
+    creation_date: date 
+    relevance_level: int
+
+    update()
+    delete()
+    randomly_show()
+}
+
+class Notes{
+    font: font 
+    font_size: double
+    font_color: color
+    background_color: color
+    
+    set_font()
+    set_font_size()
+    set_font_color()
+    set_background_color()
+    
+}
+
+class Task{
+    is_done: bool
+    color: color
+    due_date: date
+
+    set_state()
+    set_relevance_level()
+    set_color()
+    set_due_date()
+}
+
+class Meeting{
+    link: str
+    meeting_date: date
+
+    cancel_meeting()
+}
+
+class Container{
+    
+}
+
+class Preferences{
+
+}
+
+interface Modify{
+    create_task()
+    create_meeting()
+    create_note()
+    block_distractions()
+    remove_task()
+    remove_meeting()
+    remove_note()
+    unblock_distractions()
+    update_preferences()
+    
+}
+
+
+Item <|-- Task
+Item <|-- Meeting
+Item <|-- Notes
+
+Container *-- Task
+Container *--- Meeting
+Container *--- Notes
+
+User *- Password
+
+Container ...|> Modify
+User -->Container
+User --> Preferences
+User ...|> Modify
+
+
+@enduml
