@@ -1,30 +1,39 @@
-from msilib.schema import ListBox
-
-from urllib3 import Retry
 from container import Container
 from user import User
 import tkinter
+from tkinter import PhotoImage
 from tkinter import ttk
+
 class LogginWindow:
+    
     def __init__(self) -> None:
         self.loggin_window = tkinter.Tk()
-        self.geometry="500x500"
-        self.loggin_window.geometry(self.geometry)
+        self.x_size = 500
+        self.y_size = 500
+        self.loggin_window.geometry(str(self.x_size)
+                                    +"x"+str(self.y_size))
         self.loggin_window.title("AJCalendar")
+        self.loggin_window.resizable(False, False)
+        self.loggin_window.config(bg="#F4F3DD")
         
-        self.user_label = tkinter.Label(self.loggin_window, text="Usuario:")
-        self.pass_label = tkinter.Label(self.loggin_window, text="Contraseña:")
-        self.log_in_button = tkinter.Button(self.loggin_window, text="Iniciar sesión", 
-                                            command=self.verify_user_information)
+        self.user_label = tkinter.Label(self.loggin_window, 
+                                        text="Usuario:", bg="#F4F3DD")
+        self.pass_label = tkinter.Label(self.loggin_window, 
+                                        text="Contraseña:", bg="#F4F3DD")
+        self.photo = PhotoImage(file="assets/images/login_button.png")
+        self.log_in_button = tkinter.Button(self.loggin_window, 
+                                            image=self.photo,
+                                            bg="#F4F3DD", 
+                                            command=self.verify_user_information,
+                                            borderwidth=0)
         self.user_entry = tkinter.Entry(self.loggin_window)
         self.pass_entry = tkinter.Entry(self.loggin_window, show="*")
 
-        self.user_label.grid(row=2, column=2)
-        self.user_entry.grid(row=2, column=3)
-        self.pass_label.grid(row=3, column=2)
-        self.pass_entry.grid(row=3, column=3)
-        self.log_in_button.grid(row=5, column=3)
-
+        self.user_label.place(height=20, width=50, x=187, y=200)
+        self.user_entry.place(height=20, width=75, x=237, y=200)
+        self.pass_label.place(height=20, width=75, x=162, y=225)
+        self.pass_entry.place(height=20, width=75, x=237, y=225)
+        self.log_in_button.place(x=200, y=260)
         self.user_list = []
 
     
@@ -41,7 +50,7 @@ class LogginWindow:
                     self.pass_entry.get() == u.get_password()
                 ):
                     self.open_container(u)
-                    break
+                    return
             print("Usuario inválido")
         else:
             print("No hay usuarios registrados")
@@ -54,13 +63,24 @@ class ContainerWindow:
     def __init__(self, container: Container) -> None:
         self.container = container
         self.container_window = tkinter.Tk()
-        self.geometry = "720x500"
-        self.container_window.geometry(self.geometry)
+        self.x_size = 720
+        self.y_size = 500
+        self.container_window.geometry(str(self.x_size)+"x"+str(self.y_size))
         self.container_window.title("AJCalendar")
+        self.container_window.config(bg="#F4F3DD")
+
         self.task_labels = []
+        self.task_table = ttk.Treeview(self.container_window)
+        self.task_table['columns'] =(
+            "Descripción", 
+            "Relevancia", 
+            "Color", 
+            "Fecha límite", 
+            "Estado"
+        )
         self.create_task_button = tkinter.Button(self.container_window, text="Agregar tarea", 
                                                 command=self.create_task)
-        self.create_task_button.grid(row=0, column=0)
+        self.create_task_button.place(height=40, width=100, x=300, y=260)
 
         self.container_window.mainloop()
 
@@ -72,7 +92,7 @@ class ContainerWindow:
                 color_entry.get(), dued_entry.get(), status_entry.get()))
             )
             self.task_labels[n-1].grid(row=n-1, column=0)
-            self.create_task_button.grid(row=n, column = 0)
+            self.create_task_button.grid(row=n, column=0)
 
         def add_task() -> None:
             if status_entry == "Por hacer":

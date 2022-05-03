@@ -7,17 +7,12 @@ class User:
         self.points = points
         self.container = Container()
     
-    def log_in(self):
-        pass
+    def earn_points(self, points: int) -> None:
+        self.points += points
 
-    def log_out(self):
-        pass
-
-    def earn_points(self):
-        pass
-
-    def lose_points(self):
-        pass
+    def lose_points(self, points: int) -> None:
+        if self.points > 0:
+            self.points -= points
 
     def get_container(self) -> Container:
         return self.container
@@ -27,3 +22,6 @@ class User:
     
     def get_password(self) -> str:
         return self.password.psw
+    
+    def get_points(self) -> int:
+        return self.points

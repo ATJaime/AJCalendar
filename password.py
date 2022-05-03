@@ -8,14 +8,8 @@ class Password:
     def show(self) -> None:
         pass
 
-    def save(self) -> None:
-        pass
-
-    def delete(self) -> None:
-        pass
-
-    def update(self) -> None:
-        pass
+    def update(self, new_psw: str) -> None:
+        self.psw = new_psw
 
     def validate(self) -> None:
         pass

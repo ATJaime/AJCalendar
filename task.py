@@ -1,30 +1,64 @@
 from datetime import date
-from datetime import datetime
 from item import Item
 class Task(Item):
-    def __init__(self,
+    def __init__(
+        self,
+        name: str,
         description: str, 
         relevance_level: int,  
-        color: str, 
         due_date: date, 
         is_done: bool = False
     )-> None:
-        super().__init__(description=description,  
-            relevance_level=relevance_level,
-            creation_date=datetime.now()
+        super().__init__(
+            name=name,
+            description=description,  
+            relevance_level=relevance_level
         )
-        self.color = color
         self.due_date = due_date
         self.is_done = is_done
+    
+    def __str__(self) -> str:
+        return self.name
     
     def set_state(self, new_state: bool) -> None:
         self.is_done = new_state
     
-    def set_relevance_level(self, relevance_level: int) -> None:
-        self.relevance_level = relevance_level
-
-    def set_color(self, color: str) -> None:
-        self.color = color
-    
     def set_due_date(self, due_date: date) -> None:
         self.due_date = due_date
+    
+    def get_state(self) -> bool:
+        return self.is_done
+
+    def get_due_date(self) -> date:
+        return self.due_date
+
+    def get_info(self) -> list:
+        return[
+            self.name,
+            self.description, 
+            self.relevance_level, 
+            self.creation_date, 
+            self.due_date, 
+            self.is_done
+        ]
+
+    def set_name(self, new_name: str) -> None:
+        self.name = new_name
+    
+    def set_description(self, new_description: str) -> None:
+        self.description = new_description
+
+    def set_relevance_level(self, relevance_level: int) -> None:
+        self.relevance_level = relevance_level
+    
+    def get_name(self) -> str:
+        super().get_name()
+
+    def get_description(self) -> str:
+        super().get_description()
+
+    def get_relevance_level(self) -> int:
+        super().get_relevance_level()
+
+    def get_creation_date(self) -> date:
+        super().get_creation_date()
