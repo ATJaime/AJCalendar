@@ -4,6 +4,7 @@ from abc import ABC
 from abc import abstractmethod
 class Item(ABC):
 
+    @abstractmethod
     def __init__(
             self, 
             name: str, 

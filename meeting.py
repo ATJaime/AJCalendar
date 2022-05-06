@@ -1,5 +1,6 @@
 from item import Item
 from datetime import date
+from datetime import datetime
 class Meeting(Item):
     def __init__(
             self,
@@ -9,11 +10,10 @@ class Meeting(Item):
             link: str, 
             meeting_date: date
     ) -> None:
-        super().__init__(
-            name=name,
-            description=description,
-            relevance_level=relevance_level
-        )
+        self.name = name
+        self.description = description
+        self.relevance_level = relevance_level
+        self.creation_date = datetime.strftime(datetime.now(), '%b %d, %Y, %H:%M')
         self.link = link
         self.meeting_date = meeting_date
     

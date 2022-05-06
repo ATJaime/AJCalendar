@@ -1,7 +1,8 @@
 from password import Password
 from container import Container
 class User:
-    def __init__(self, username: str, psw: str, points=0) -> None:
+    def __init__(self, user_id: int, username: str, psw: str, points=0) -> None:
+        self.__user_id = user_id
         self.username = username
         self.password = Password(psw)
         self.points = points
@@ -25,3 +26,7 @@ class User:
     
     def get_points(self) -> int:
         return self.points
+    
+    @property
+    def user_id(self) -> int:
+        return self.__user_id

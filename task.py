@@ -1,4 +1,5 @@
 from datetime import date
+from datetime import datetime
 from item import Item
 class Task(Item):
     def __init__(
@@ -9,11 +10,10 @@ class Task(Item):
         due_date: date, 
         is_done: bool = False
     )-> None:
-        super().__init__(
-            name=name,
-            description=description,  
-            relevance_level=relevance_level
-        )
+        self.name = name
+        self.description = description
+        self.relevance_level = relevance_level
+        self.creation_date = datetime.strftime(datetime.now(), '%b %d, %Y, %H:%M')
         self.due_date = due_date
         self.is_done = is_done
     
@@ -52,13 +52,13 @@ class Task(Item):
         self.relevance_level = relevance_level
     
     def get_name(self) -> str:
-        super().get_name()
+        return self.name
 
     def get_description(self) -> str:
-        super().get_description()
+        return self.description
 
     def get_relevance_level(self) -> int:
-        super().get_relevance_level()
+        return self.relevance_level
 
     def get_creation_date(self) -> date:
-        super().get_creation_date()
+        return self.creation_date
