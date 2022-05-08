@@ -20,7 +20,7 @@ class DataBase:
         self.conn = sql.connect(USERS)
         self.cursor = self.conn.cursor()
         self.cursor.execute(
-            """CREATE TABLE usuarios(
+            """CREATE TABLE IF NOT EXISTS usuarios(
                 usuario_id INTEGER PRIMARY KEY,
                 usuario text,
                 contraseña text,
@@ -39,8 +39,8 @@ class DataBase:
         self.conn = sql.connect(TASKS)
         self.cursor = self.conn.cursor()
         self.cursor.execute(
-            """CREATE TABLE tareas(
-                usuario_id INTEGER PRIMARY KEY,
+            """CREATE TABLE IF NOT EXISTS tareas(
+                usuario_id integer,
                 nombre text,
                 descripción text,
                 nivel_de_relevancia integer,
@@ -61,8 +61,8 @@ class DataBase:
         self.conn = sql.connect(NOTES)
         self.cursor = self.conn.cursor()
         self.cursor.execute(
-            """CREATE TABLE notas(
-                usuario_id INTEGER PRIMARY KEY,
+            """CREATE TABLE IF NOT EXISTS notas(
+                usuario_id integer,
                 nombre text,
                 descripción text,
                 nivel_de_relevancia integer,
@@ -83,8 +83,8 @@ class DataBase:
         self.conn = sql.connect(MEETINGS)
         self.cursor = self.conn.cursor()
         self.cursor.execute(
-            """CREATE TABLE reuniones(
-                usuario_id INTEGER PRIMARY KEY,
+            """CREATE TABLE IF NOT EXISTS reuniones(
+                usuario_id integer,
                 nombre text,
                 descripción text,
                 nivel_de_relevancia integer,
@@ -111,9 +111,9 @@ class DataBase:
         self.cursor.execute(
             f"INSERT INTO tareas VALUES (?, ?, ?, ?, ?, ?, ?)", 
             (user_id, 
-            task.get_name(), task.get_description(),
-            task.get_relevance_level(), task.get_creation_date(),
-            task.get_due_date(), task.get_state()
+            task.name, task.description,
+            task.relevance_level, task.creation_date,
+            task.due_date, task.state
             )
         )
         self.conn.commit()
@@ -125,9 +125,9 @@ class DataBase:
         self.cursor.execute(
             f"INSERT INTO reuniones VALUES(?, ?, ?, ?, ?, ?, ?)",
             (user_id,
-            meeting.get_name(), meeting.get_description(),
-            meeting.get_relevance_level(), meeting.get_creation_date(),
-            meeting.get_link(), meeting.get_meeting_date()
+            meeting.name, meeting.description,
+            meeting.relevance_level, meeting.creation_date,
+            meeting.link, meeting.meeting_date
             )
         )
         self.conn.commit()
@@ -139,9 +139,9 @@ class DataBase:
         self.cursor.execute(
             f"INSERT INTO notas VALUES(?, ?, ?, ?, ?, ?, ?)",
             (user_id,
-            note.get_name(), note.get_description(),
-            note.get_relevance_level(), note.get_creation_date(),
-            note.get_font(), note.get_font_size()
+            note.name, note.description,
+            note.relevance_level, note.creation_date,
+            note.font, note.font_size
             )
         )
         self.conn.commit()
@@ -159,7 +159,7 @@ class DataBase:
     def search(self, database_name: str, field: Any) -> list:
         self.conn = sql.connect(f"{database_name}.db")
         self.cursor = self.conn.cursor()
-        self.cursor.execute(f"SELECT * FROM '{database_name}' WHERE username='{field}'")
+        self.cursor.execute(f"SELECT * FROM '{database_name}' WHERE usuario_id='{field}'")
         data = self.cursor.fetchall()
         self.conn.commit()
         self.conn.close()

@@ -10,55 +10,60 @@ class Task(Item):
         due_date: date, 
         is_done: bool = False
     )-> None:
-        self.name = name
-        self.description = description
-        self.relevance_level = relevance_level
-        self.creation_date = datetime.strftime(datetime.now(), '%b %d, %Y, %H:%M')
-        self.due_date = due_date
-        self.is_done = is_done
+        self.__name = name
+        self.__description = description
+        self.__relevance_level = relevance_level
+        self.__creation_date = datetime.strftime(datetime.now(), '%b %d, %Y, %H:%M')
+        self.__due_date = due_date
+        self.__is_done = is_done
     
     def __str__(self) -> str:
         return self.name
     
-    def set_state(self, new_state: bool) -> None:
-        self.is_done = new_state
+    @property
+    def state(self) -> bool:
+        return self.__is_done
+
+    @property
+    def due_date(self) -> date:
+        return self.__due_date
     
-    def set_due_date(self, due_date: date) -> None:
-        self.due_date = due_date
+    @property
+    def name(self) -> str:
+        return self.__name
+
+    @property
+    def description(self) -> str:
+        return self.__description
+
+    @property
+    def relevance_level(self) -> int:
+        return self.__relevance_level
+
+    @property
+    def creation_date(self) -> date:
+        return self.__creation_date
     
-    def get_state(self) -> bool:
-        return self.is_done
-
-    def get_due_date(self) -> date:
-        return self.due_date
-
-    def get_info(self) -> list:
-        return[
-            self.name,
-            self.description, 
-            self.relevance_level, 
-            self.creation_date, 
-            self.due_date, 
-            self.is_done
-        ]
-
-    def set_name(self, new_name: str) -> None:
-        self.name = new_name
+    @state.setter
+    def state(self, new_state: bool) -> None:
+        self.__is_done = new_state
     
-    def set_description(self, new_description: str) -> None:
-        self.description = new_description
-
-    def set_relevance_level(self, relevance_level: int) -> None:
-        self.relevance_level = relevance_level
+    @due_date.setter
+    def due_date(self, due_date: date) -> None:
+        self.__due_date = due_date
     
-    def get_name(self) -> str:
-        return self.name
+    @name.setter
+    def name(self, new_name: str) -> None:
+        self.__name = new_name
+    
+    @description.setter
+    def description(self, new_description: str) -> None:
+        self.__description = new_description
 
-    def get_description(self) -> str:
-        return self.description
-
-    def get_relevance_level(self) -> int:
-        return self.relevance_level
-
-    def get_creation_date(self) -> date:
-        return self.creation_date
+    @relevance_level.setter
+    def relevance_level(self, relevance_level: int) -> None:
+        self.__relevance_level = relevance_level
+    
+    @creation_date.setter
+    def creation_date(self, date: date) -> date:
+        self.__creation_date = date
