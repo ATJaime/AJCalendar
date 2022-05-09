@@ -3,6 +3,7 @@ from typing import Any
 from task import Task
 from meeting import Meeting
 from note import Note
+from user import User
 
 USERS = "usuarios.db"
 TASKS = "tareas.db"
@@ -96,11 +97,11 @@ class DataBase:
         self.conn.commit()
         self.conn.close()
 
-    def insert_user(self, user_id: int, username: str, password: str, points: int) -> None:
+    def insert_user(self, user: User) -> None:
         self.conn = sql.connect(USERS)
         self.cursor = self.conn.cursor()
         self.cursor.execute(
-            f"INSERT INTO usuarios VALUES({user_id}, '{username}', '{password}', {points})"
+            f"INSERT INTO usuarios VALUES({user.user_id}, '{user.username}', '{user.password}', {user.points})"
         )
         self.conn.commit()
         self.conn.close()

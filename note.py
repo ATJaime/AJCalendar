@@ -1,6 +1,7 @@
 from item import Item
 from datetime import datetime
 from datetime import date
+
 class Note(Item):
     def __init__(
             self,
@@ -13,9 +14,12 @@ class Note(Item):
         self.__name = name
         self.__description = description
         self.__relevance_level = relevance_level
-        self.__creation_date = datetime.strftime(datetime.now(), '%b %d, %Y, %H:%M')
+        self.__creation_date = datetime.strftime(datetime.now(), '%d-%m-%Y')
         self.__font = font
         self.__font_size = font_size
+    
+    def __str__(self) -> str:
+        return self.name
     
     @property
     def font(self) -> str:

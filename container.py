@@ -5,19 +5,10 @@ from datetime import date
 
 class Container():
     def __init__(self):
-        self.notes = []
-        self.tasks = []
-        self.meetings = []
+        self.__notes = []
+        self.__tasks = []
+        self.__meetings = []
     
-    def get_notes(self) -> list:
-        return self.notes
-    
-    def get_tasks(self) -> list:
-        return self.tasks
-    
-    def get_meetings(self) -> list:
-        return self.meetings
-
     def create_task(
             self,
             name: str, 
@@ -26,7 +17,7 @@ class Container():
             due_date: date,
             is_done: bool
     ) -> None:
-        self.tasks.append(Task(
+        self.__tasks.append(Task(
             name=name, 
             description=description, 
             relevance_level=relevance_level,
@@ -43,7 +34,7 @@ class Container():
             link: str,
             meeting_date: date
     ) -> None:
-        self.meetings.append(Meeting(
+        self.__meetings.append(Meeting(
             name=name, description=description, 
             relevance_level=relevance_level,
             link=link, meeting_date=meeting_date
@@ -57,7 +48,7 @@ class Container():
             font: str,
             font_size: float
     ) -> None:
-        self.notes.append(Note(
+        self.__notes.append(Note(
             name=name, description=description, 
             relevance_level=relevance_level,
             font=font, font_size=font_size
@@ -67,15 +58,27 @@ class Container():
     def block_distractions(self):
         pass
     
-    def remove_task(self):
-        pass
+    def remove_task(self, index: int):
+        self.__tasks.remove[index]
     
-    def remove_meeting(self):
-        pass
+    def remove_meeting(self, index: int):
+        self.__meetings.remove[index]
     
-    def remove_note(self):
-        pass
+    def remove_note(self, index: int):
+        self.__notes.remove[index]
     
+    @property
+    def notes(self) -> list:
+        return self.__notes
+    
+    @property
+    def tasks(self) -> list:
+        return self.__tasks
+    
+    @property
+    def meetings(self) -> list:
+        return self.__meetings
+
     def unblock_distractions(self):
         pass
     

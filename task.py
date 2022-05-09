@@ -13,7 +13,7 @@ class Task(Item):
         self.__name = name
         self.__description = description
         self.__relevance_level = relevance_level
-        self.__creation_date = datetime.strftime(datetime.now(), '%b %d, %Y, %H:%M')
+        self.__creation_date = datetime.strftime(datetime.now(), '%d-%m-%Y')
         self.__due_date = due_date
         self.__is_done = is_done
     

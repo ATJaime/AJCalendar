@@ -13,10 +13,13 @@ class Meeting(Item):
         self.__name = name
         self.__description = description
         self.__relevance_level = relevance_level
-        self.__creation_date = datetime.strftime(datetime.now(), '%b %d, %Y, %H:%M')
+        self.__creation_date = datetime.strftime(datetime.now(), '%d-%m-%Y')
         self.__link = link
         self.__meeting_date = meeting_date
     
+    def __str__(self) -> str:
+        return self.name
+
     @property
     def link(self) -> str:
         return self.__link
@@ -64,6 +67,3 @@ class Meeting(Item):
     @creation_date.setter
     def creation_date(self, date: date) -> date:
         self.__creation_date = date
-    
-    def cancel_meeting(self) -> None:
-        pass
