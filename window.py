@@ -1,14 +1,12 @@
 from ctypes import windll
-from pyglet.font import add_file
+from turtle import title
 from container import Container
 from user import User
 from database import DataBase
 from werkzeug.security import check_password_hash
 import tkinter
 from tkinter import PhotoImage
-from tkinter import font
 
-add_file("assets/fonts/Francois_One/FO.ttf")
 windll.shcore.SetProcessDpiAwareness(1)
 
 class LoginWindow:
@@ -16,34 +14,16 @@ class LoginWindow:
     def __init__(self) -> None:
         self.login_window = tkinter.Tk()
         self.login_window.geometry("900x600")
-        self.login_window.eval('tk::PlaceWindow . center ')
         self.login_window.title("AJCalendar")
         self.login_window.resizable(False, False)
         self.login_window.config(bg="#2E2F33")
-        self.login_window.overrideredirect(1)
-        self.title_bar = tkinter.Frame(self.login_window, bg='#2E2F33', bd=0)
-        self.close_button = tkinter.Button(self.title_bar, 
-                                            foreground="white", 
-                                            text="×",
-                                            font=("Arial", 20),
-                                            borderwidth=0,
-                                            bg="#2E2F33",
-                                            activebackground="#FF605C",
-                                            activeforeground="white",
-                                            command=self.login_window.destroy
-                                        )
-        self.title_bar.place(height=50, width=900, x=0, y=0)
-        self.close_button.pack(side='right', ipadx=20)
-        self.title_bar.bind('<B1-Motion>', self.move_window)
+        
         for i in range(0, 50):
             tkinter.Grid.rowconfigure(self.login_window, i, weight=1)
         
         for i in range(0, 10):
             tkinter.Grid.columnconfigure(self.login_window, i, weight=1)
-        
-        self.logo = PhotoImage(file="assets/images/logo.png")
-        self.logo_label = tkinter.Label(self.title_bar, image=self.logo, bg="#2E2F33")
-        self.logo_label.bind('<B1-Motion>', self.move_window)
+ 
         self.user_label = tkinter.Label(self.login_window, 
                                         text="Usuario:", 
                                         bg="#2E2F33",
@@ -90,7 +70,6 @@ class LoginWindow:
                                         borderwidth=0
                                     )
 
-        self.logo_label.pack(side="left", padx=10)
         self.user_label.grid(row=25, column=3, sticky="nsew")
         self.pass_label.grid(row=28, column=3, sticky="nsew")
         self.user_entry.grid(row=25, column=4, sticky="nsew")
@@ -151,34 +130,185 @@ class LoginWindow:
                 add_user(id)
 
         register_window = tkinter.Tk()
-        register_window.geometry("300x500")
+        register_window.geometry("900x600")
+        register_window.title("AJCalendar")
         register_window.resizable(False, False)
+        register_window.config(bg="#2E2F33")
 
-        user_register_label = tkinter.Label(register_window, text="Usuario:")
-        password_register_label = tkinter.Label(register_window, text="Contraseña:")
-        password_confirmation_label = tkinter.Label(register_window, text="Confirmar contraseña:")
-        user_register_entry = tkinter.Entry(register_window)
-        password_register_entry = tkinter.Entry(register_window, show="*")
-        password_confirmation_entry = tkinter.Entry(register_window, show="*")
-        regis_button = tkinter.Button(register_window, text="Registrar", command=verify_user)
+        for i in range(0, 50):
+            tkinter.Grid.rowconfigure(register_window, i, weight=1)
+        
+        for i in range(0, 10):
+            tkinter.Grid.columnconfigure(register_window, i, weight=1)
 
-        user_register_label.place(height=20, width=75, x= 82, y=200)
-        user_register_entry.place(height=20, width=75, x= 162, y=200)
-        password_register_label.place(height=20, width=100, x= 67, y=225)
-        password_register_entry.place(height=20, width=75, x= 162, y=225)
-        password_confirmation_label.place(height=20, width=150, x= 17, y=250)
-        password_confirmation_entry.place(height=20, width=75, x= 162, y=250)
-        regis_button.place(height=25, width=75, x=125, y=300)
+
+        user_register_label = tkinter.Label(register_window, text="Usuario:",bg="#2E2F33",font=("FO", 14),
+                                        foreground="white")
+        password_register_label = tkinter.Label(register_window, text="Contraseña:",bg="#2E2F33",font=("FO", 14),
+                                        foreground="white")
+        password_confirmation_label = tkinter.Label(register_window, text="Confirmar contraseña:",bg="#2E2F33",font=("FO", 14),
+                                        foreground="white")
+        user_register_entry = tkinter.Entry(register_window,bg="white",
+                                        font=("FO", 14),
+                                        foreground="black",
+                                        insertbackground="black", 
+                                        borderwidth=0)
+        password_register_entry = tkinter.Entry(register_window, show="*",bg="white",
+                                        insertbackground="black",
+                                        font=("FO", 14),
+                                        foreground="black", 
+                                        borderwidth=0)
+        password_confirmation_entry = tkinter.Entry(register_window, show="*",bg="white",
+                                        insertbackground="black",
+                                        font=("FO", 14),
+                                        foreground="black", 
+                                        borderwidth=0)
+        
+        photo_imageR = PhotoImage(master=register_window, file="assets/images/register1_button.png")
+        r_button = tkinter.Button(register_window,
+                                image=photo_imageR,
+                                bg="#2E2F33",
+                                activebackground="#2E2F33",
+                                borderwidth=0,
+                                command=verify_user
+                            )
+        #regis_button = tkinter.Button(register_window, text="Registrar", command=verify_user)
+
+        user_register_label.grid(row=25, column=3,sticky="nsew")
+        user_register_entry.grid(row=25, column=4, sticky="nsew")
+        password_register_label.grid(row=28, column=3, sticky="nsew")
+        password_register_entry.grid(row=28, column=4, sticky="nsew")
+        password_confirmation_label.grid(row=33, column=3, sticky="nsew")
+        password_confirmation_entry.grid(row=33, column=4, sticky="nsew")
+        r_button.grid(row=38, column=4, sticky ="nsew")
 
         register_window.mainloop()
+
 
 class ContainerWindow():
     def __init__(self, user: User) -> None:
         self.container_window = tkinter.Tk()
         self.user = user
-        self.container_window.geometry("1000x600")
+        self.container_window.geometry("900x600")
         self.container_window.title("AJCalendar")
         self.container_window.resizable(False, False)
-        self.container_window.config(bg="#F4F3DD")
+        self.container_window.config(bg="#2E2F33")
+        
+        
+        for i in range(0, 50):
+            tkinter.Grid.rowconfigure(self.container_window, i, weight=1)
+        
+        for i in range(0, 10):
+            tkinter.Grid.columnconfigure(self.container_window, i, weight=1)
+    
 
+        self.photo_image_3 = PhotoImage(file="assets/images/NOTAS.png")
+
+        self.notas_button = tkinter.Button(self.container_window,
+                                                image=self.photo_image_3,
+                                                bg="#2E2F33",
+                                                activebackground="#2E2F33",
+                                                borderwidth=0, 
+                                                command=self.click_note)
+
+        
+        self.photo_image_5 = PhotoImage(file="assets/images/TAREA.png")
+
+        self.task_button = tkinter.Button(self.container_window,
+                                                image=self.photo_image_5,
+                                                bg="#2E2F33",
+                                                activebackground="#2E2F33",
+                                                borderwidth=0
+                                            )
+        self.photo_image_6 = PhotoImage(file="assets/images/MEET.png")
+
+        self.meet_button = tkinter.Button(self.container_window,
+                                                image=self.photo_image_6,
+                                                bg="#2E2F33",
+                                                activebackground="#2E2F33",
+                                                borderwidth=0
+                                            )
+        #notas_button = tkinter.Button(self.container_window, text="Notas")
+        #task_button = tkinter.Button(self.container_window, text="Tareas")
+        #meet_button = tkinter.Button(self.container_window, text="Reuniones")
+        
+        self.notas_button.grid(row=10, column=1,sticky="nsew")
+        self.task_button.grid(row=13, column=1,sticky="nsew")
+        self.meet_button.grid(row=16, column=1,sticky="nsew")
         self.container_window.mainloop()
+
+       
+    def click_note(self) -> None:
+        note_window = tkinter.Tk()
+        note_window.geometry("600x400")
+        note_window.title("AJCalendar")
+        note_window.resizable(False, False)
+        note_window.config(bg="#2E2F33")
+
+        for i in range(0, 50):
+            tkinter.Grid.rowconfigure(note_window, i, weight=1)
+        
+        for i in range(0, 20):
+            tkinter.Grid.columnconfigure(note_window, i, weight=1)
+        
+        title_label = tkinter.Label(note_window, text="Crear nota",bg="#2E2F33",font=("FO", 20),
+                                        foreground="white")
+        name_note_label = tkinter.Label(note_window, text="Nombre:",bg="#2E2F33",font=("FO", 12),
+                                        foreground="white")
+       
+        relevancia_note_label = tkinter.Label(note_window, text="Relevancia:",bg="#2E2F33",font=("FO", 12),
+                                        foreground="white")
+        descripcion_note_label = tkinter.Label(note_window, 
+                                        text="Descripcion:",
+                                        bg="#2E2F33",
+                                        font=("FO", 12),
+                                        foreground="white")                                
+        name_note_entry = tkinter.Entry(note_window,bg="white",
+                                        font=("FO", 12),
+                                        foreground="black",
+                                        insertbackground="black", 
+                                        borderwidth=0)
+        
+        
+
+        relevancia_note_entry_1 = tkinter.Checkbutton(note_window,bg="#2E2F33", text="Alta",activebackground="#2E2F33",foreground="white")
+                                        
+        relevancia_note_entry_2 = tkinter.Checkbutton(note_window, bg="#2E2F33", text="Media",activebackground="#2E2F33",foreground="white")
+
+        relevancia_note_entry_3 = tkinter.Checkbutton(note_window,bg="#2E2F33", text="Baja",activebackground="#2E2F33",foreground="white")
+        
+        descripcion_note_entry = tkinter.Text (note_window,bg="white", width=30, height=4,
+                                        insertbackground="black",
+                                        foreground="black",
+                                        borderwidth=0)
+        
+        
+        photo_image_7 = PhotoImage(master=note_window, file="assets/images/CreNota.png")
+
+        create_note_button = tkinter.Button(note_window,
+                                                image=photo_image_7,
+                                                bg="#2E2F33",
+                                                activebackground="#2E2F33",
+                                                borderwidth=0
+                                            )
+        
+        title_label.grid(row=8, column=3,sticky="nsew")
+        name_note_label.grid(row=10, column=2,sticky="nsew")
+        name_note_entry.grid(row=10, column=3, sticky="nsew")
+        
+        relevancia_note_label.grid(row=14, column=2, sticky="nsew")
+        relevancia_note_entry_1.grid(row=14, column=3, sticky="nsew")
+        relevancia_note_entry_2.grid(row=14, column=4, sticky="nsew")
+        relevancia_note_entry_3.grid(row=14, column=5, sticky="nsew")
+        descripcion_note_label.grid(row=16, column=2, sticky="nsew")
+        descripcion_note_entry.grid(row=16, column=3, sticky="nsew")
+        create_note_button.grid(row=19, column=3, sticky ="nsew")
+
+        note_window.mainloop()
+    
+           
+
+    
+        
+   
+    
