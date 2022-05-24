@@ -2,6 +2,7 @@ from ctypes import windll
 from datetime import datetime
 from tkinter.ttk import Treeview
 from tkinter.ttk import Scrollbar
+from tkinter import messagebox
 from user import User
 from note import Note
 from meeting import Meeting
@@ -11,6 +12,8 @@ from werkzeug.security import check_password_hash
 import tkinter
 from tkinter import PhotoImage
 from tkcalendar import DateEntry
+from sched import scheduler
+import time
 
 windll.shcore.SetProcessDpiAwareness(1)
 
@@ -91,7 +94,7 @@ class LoginWindow(tkinter.Tk):
             users = DataBase().read_rows("usuarios")
             if (self.user_entry.get().strip(' ') == ""
                 or self.pass_entry.get().strip(' ') == ""):
-                print("Por favor, rellene los campos")
+                messagebox.showwarning(message="Por favor, rellene los campos", title="Mensaje")
             else:
                 for user in users:
                     if (self.user_entry.get() == user[1] and
@@ -104,28 +107,31 @@ class LoginWindow(tkinter.Tk):
                         try:
                             notes_user = DataBase().search("notas", user[0])
                             for note in notes_user:
-                                logged_user.create_note(note[1], note[2], note[3], note[4], note[5])
+                                logged_user.create_note(note[1], note[2], note[3], note[5], note[6])
+                                logged_user.notes[-1].creation_date = note[4]
                         except:
                             pass
 
                         try:
                             tasks_user = DataBase().search("tareas", user[0])
                             for task in tasks_user:
-                                logged_user.create_task(task[1], task[2], task[3], task[4], task[5])
+                                logged_user.create_task(task[1], task[2], task[3], task[5], task[6])
+                                logged_user.tasks[-1].creation_date = task[4]
                         except:
                             pass
 
                         try:
                             meetings_user = DataBase().search("reuniones", user[0])
                             for meeting in meetings_user:
-                                logged_user.create_meeting(meeting[1], meeting[2], meeting[3], meeting[4], meeting[5])
+                                logged_user.create_meeting(meeting[1], meeting[2], meeting[3], meeting[5], meeting[6])
+                                logged_user.meetings[-1].creation_date = meeting[4]
                         except:
                             pass
                         ContainerWindow(logged_user)
                         return
-                print("Los campos diligenciados no son correctos")
+                messagebox.showwarning(message="Los campos diligenciados no son correctos", title="Mensaje")
         except:
-            print("No hay usuarios registrados")
+            messagebox.showwarning(message="No hay usuarios registrados", title="Mensaje")
                 
     def register(self) -> None:
         def add_user(id: int) -> None:
@@ -140,10 +146,10 @@ class LoginWindow(tkinter.Tk):
             if (password_confirmation_entry.get().strip(' ') == "" 
                 or password_register_entry.get().strip(' ') == ""
                 or user_register_entry.get().strip(' ') == ""):
-                print("Ingrese valores en los campos")
+                messagebox.showwarning(message="Ingrese valores en los campos", title="Mensaje")
 
             elif password_confirmation_entry.get() != password_register_entry.get():
-                print("Las contraseñas no coinciden")
+                messagebox.showwarning(message="Las contraseñas no coinciden", title="Mensaje")
 
             else:
                 id = 0
@@ -152,7 +158,7 @@ class LoginWindow(tkinter.Tk):
                 users = DataBase().read_rows("usuarios")
                 for user in users:
                     if user[1] == user_register_entry.get():
-                        print("Este nombre de usuario ya está siendo usado")
+                        messagebox.showwarning(message="Este nombre de usuario ya está siendo usado", title="Mensaje")
                         return
                     id += 1
                 add_user(id)
@@ -219,9 +225,8 @@ class ContainerWindow(tkinter.Tk):
         self.title("AJCalendar")
         self.resizable(False, False)
         self.config(bg="#2E2F33")
-        
-        self.config_grid(self)
 
+        self.config_grid(self)
         self.photo_image_3 = PhotoImage(file="assets/images/NOTAS.png")
         self.score_label = tkinter.Label(self, 
                                         text= f"Puntos: {self.user.points}", 
@@ -265,7 +270,6 @@ class ContainerWindow(tkinter.Tk):
                                             text="Salir",
                                             command=self.log_out,
                                         )
-
         try:                                
             self.last_note = tkinter.Button(self, text=self.user.notes[-1])
         except:
@@ -294,8 +298,27 @@ class ContainerWindow(tkinter.Tk):
         self.task_button.grid(row=13, column=1, sticky="nsew")
         self.meet_button.grid(row=16, column=1, sticky="nsew")
         self.score_label.grid(row=20, column=7, sticky="nsew")
+        temp_h = int(datetime.now().hour)
+        temp_m = int(datetime.now().minute)
+        self.current_date = tkinter.Label(self, text=f"{datetime.strftime(datetime.now(), '%Y-%m-%d. ')}{temp_h}:{temp_m}")
+        self.current_date.after(1000, self.update_date)
         self.mainloop()
     
+    def update_date(self) -> None:
+        self.current_date.config(text=f"{datetime.strftime(datetime.now(), '%Y-%m-%d. ')}{temp_h}:{temp_m}")
+        for meeting in self.user.meetings:
+            print(meeting.meeting_date)
+            if self.current_date["text"] == meeting.meeting_date:
+                messagebox.showinfo(message="Tienes una reunión ahora", title="Mensaje")
+                meeting.open_meeting()
+                self.current_date.after(60000, self.update_date)
+                return
+        temp_h = int(datetime.now().hour)
+        temp_m = int(datetime.now().minute)
+        self.current_date.after(1000, self.update_date)
+                
+        
+
     def config_grid(self, root: tkinter.Tk) -> None:
         for i in range(0, 40):
             tkinter.Grid.rowconfigure(root, i, weight=1)
@@ -303,41 +326,50 @@ class ContainerWindow(tkinter.Tk):
             tkinter.Grid.columnconfigure(root, i, weight=1)
 
     def log_out(self) -> None:
-        self.destroy()
-        w = LoginWindow()
-        w.start_window()
+        try:
+            self.destroy()
+            w = LoginWindow()
+            w.start_window()
+        except:
+            print("El timer se detuvo")
 
     def config_window(self) -> None:
         def delete_account():
-            for task in self.user.tasks:
-                DataBase().delete_item("tareas", self.user.user_id, task.name)
-            for note in self.user.notes:
-                DataBase().delete_item("notas", self.user.user_id, note.name)
-            for meeting in self.user.meetings:
-                DataBase().delete_item("reuniones", self.user.user_id, meeting.name)
-            DataBase().delete_user(self.user.user_id)
-            self.log_out()
+            temp = messagebox.askyesnocancel(message="Se borrarán todos los datos de su cuenta, ¿quiere continuar?", title="Mensaje")
+            if temp:    
+                for task in self.user.tasks:
+                    DataBase().delete_item("tareas", self.user.user_id, task.name)
+                for note in self.user.notes:
+                    DataBase().delete_item("notas", self.user.user_id, note.name)
+                for meeting in self.user.meetings:
+                    DataBase().delete_item("reuniones", self.user.user_id, meeting.name)
+                DataBase().delete_user(self.user.user_id)
+                messagebox.showinfo(message="Se ha borrado su cuenta exitosamente", title="Mensaje")
+                self.log_out()
+            
 
         def change_password():
             if password_entry.get().strip(' ') == "":
-                print("Ingrese una contraseña")
+                messagebox.showwarning(message="Ingrese una contraseña", title="Mensaje")
             elif password_entry.get() != confirm_password_entry.get():
-                print("Las contraseñas no coinciden")
+                messagebox.showwarning("Las contraseñas no coinciden", title="Mensaje")
             else:
                 self.user.password = password_entry.get()
                 DataBase().update(self.user.user_id, "contraseña", self.user.password)
+                messagebox.showinfo(message="Se ha cambiado la contraseña exitosamente", title="Mensaje")
             
         def change_name():
             if name_entry.get().strip(' ') == "":
-                print("Ingrese un nombre de usuario")
+                messagebox.showwarning(message="Ingrese un nombre de usuario", title="Mensaje")
             else:
                 data = DataBase().read_rows("usuarios")
                 for dat in data:
                     if name_entry.get() in dat:
-                        print("Este nombre de usuario ya está siendo usado")
+                        messagebox.showwarning(message="Este nombre de usuario ya está siendo usado", title="Mensaje")
                         return
                 self.user.username = name_entry.get()
                 DataBase().update(self.user.user_id, "usuario", self.user.username)
+                messagebox.showinfo(message="Se ha cambiado el nombre exitosamente", title="Mensaje")
 
         config_window = tkinter.Toplevel(self)
         config_window.geometry("600x700")
@@ -395,7 +427,7 @@ class ContainerWindow(tkinter.Tk):
 
         def verify_fields():
             if name_entry.get().strip(' ') == "":
-                print("Ingrese correctamente los campos")
+                messagebox.showwarning(message="Ingrese correctamente los campos", title="Mensaje")
             else:
                 data = [name_entry.get(), description_entry.get("1.0", "end"), selection.get()]
                 add_note(data)
@@ -466,13 +498,13 @@ class ContainerWindow(tkinter.Tk):
 
         def verify_fields():
             if name_entry.get().strip(' ') == "":
-                print("Rellene los campos, por favor")
+                messagebox.showwarning(message="Rellene los campos, por favor", title="Mensaje")
             elif calendar.get_date().year < datetime.now().year:
-                print("Ingrese fecha válida")
+                messagebox.showwarning(message="Ingrese fecha válida", title="Mensaje")
             elif calendar.get_date().month < datetime.now().month:
-                print("Ingrese fecha válida")
+                messagebox.showwarning(message="Ingrese fecha válida", title="Mensaje")
             elif calendar.get_date().day < datetime.now().day:
-                print("Ingrese fecha válida")
+                messagebox.showwarning(message="Ingrese fecha válida", title="Mensaje")
             else:
                 data = [name_entry.get(), description_entry.get("1.0", "end"), selection.get(), calendar.get_date()]
                 add_task(data)
@@ -558,24 +590,24 @@ class ContainerWindow(tkinter.Tk):
         def verify_fields():
             if (name_entry.get().strip(' ') == ""
                 or link_entry.get().strip(' ') == ""):
-                print("Rellene los campos, por favor")
+                messagebox.showwarning(message="Rellene los campos, por favor", title="Mensaje")
             elif calendar.get_date().year < datetime.now().year:
-                print("Ingrese fecha válida")
+                messagebox.showwarning(message="Ingrese fecha válida", title="Mensaje")
             elif calendar.get_date().month < datetime.now().month:
-                print("Ingrese fecha válida")
+                messagebox.showwarning(message="Ingrese fecha válida", title="Mensaje")
             elif calendar.get_date().day < datetime.now().day:
-                print("Ingrese fecha válida")
+                messagebox.showwarning(message="Ingrese fecha válida", title="Mensaje")
             elif (calendar.get_date().day == datetime.now().day and int(hour.get()) < datetime.now().hour):
-                print("Ingrese hora válida")
+                messagebox.showwarning(message="Ingrese hora válida", title="Mensaje")
             elif (int(hour.get()) == datetime.now().hour and int(minute.get()) < datetime.now().minute):
-                print("Ingrese minuto válido")
+                messagebox.showwarning(message="Ingrese minuto válido", title="Mensaje")
             else:
                 data = [
                     name_entry.get(), 
                     description_entry.get("1.0", "end"), 
                     selection.get(),  
                     link_entry.get(),
-                    str(calendar.get_date())+". "+str(hour.get())+":"+str(minute.get())
+                    f"{calendar.get_date()}. {hour.get()}:{minute.get()}"
                 ]
                 add_meeting(data)
         meeting_window = tkinter.Toplevel(self)
@@ -712,7 +744,7 @@ class ContainerWindow(tkinter.Tk):
                 DataBase().delete_item("tareas", self.user.user_id, self.user.notes[index].name)
                 self.user.remove_note(self.user.notes[index])
             except:
-                print("Por favor, seleccione el elemento a eliminar")
+                messagebox.showwarning(message="Por favor, seleccione el elemento a eliminar", title="Mensaje")
         note_window = tkinter.Toplevel(self)
         note_window.title("AJCalendar")
         note_window.geometry("800x400")
@@ -760,7 +792,7 @@ class ContainerWindow(tkinter.Tk):
                 DataBase().delete_item("tareas", self.user.user_id, self.user.tasks[index].name)
                 self.user.remove_task(self.user.tasks[index])
             except:
-                print("Por favor, seleccione el elemento a eliminar")
+                messagebox.showwarning(message="Por favor, seleccione el elemento a eliminar", title="Mensaje")
         task_window = tkinter.Toplevel(self)
         task_window.title("AJCalendar")
         task_window.geometry("850x400")
@@ -813,7 +845,7 @@ class ContainerWindow(tkinter.Tk):
                 DataBase().delete_item("reuniones", self.user.user_id, self.user.meetings[index].name)
                 self.user.remove_meeting(self.user.meetings[index])
             except:
-                print("Por favor, seleccione el elemento a eliminar")
+                messagebox.showwarning(message="Por favor, seleccione el elemento a eliminar", title="Mensaje")
         meeting_window = tkinter.Toplevel(self)
         meeting_window.title("AJCalendar")
         meeting_window.geometry("1050x400")
