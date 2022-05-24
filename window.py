@@ -1,5 +1,7 @@
 from ctypes import windll
 from datetime import datetime
+from tkinter.ttk import Treeview
+from tkinter.ttk import Scrollbar
 from user import User
 from note import Note
 from meeting import Meeting
@@ -12,36 +14,37 @@ from tkcalendar import DateEntry
 
 windll.shcore.SetProcessDpiAwareness(1)
 
-class LoginWindow: 
+class LoginWindow(tkinter.Tk): 
     def __init__(self) -> None:
-        self.login_window = tkinter.Tk()
-        self.login_window.geometry("900x600")
-        self.login_window.title("AJCalendar")
-        self.login_window.resizable(False, False)
-        self.login_window.config(bg="#2E2F33")
+        super().__init__()
+
+        self.geometry("900x600")
+        self.title("AJCalendar")
+        self.resizable(False, False)
+        self.config(bg="#2E2F33")
         
         for i in range(0, 50):
-            tkinter.Grid.rowconfigure(self.login_window, i, weight=1)
+            tkinter.Grid.rowconfigure(self, i, weight=1)
         
         for i in range(0, 10):
-            tkinter.Grid.columnconfigure(self.login_window, i, weight=1)
+            tkinter.Grid.columnconfigure(self, i, weight=1)
  
-        self.user_label = tkinter.Label(self.login_window, 
+        self.user_label = tkinter.Label(self, 
                                         text="Usuario:", 
                                         bg="#2E2F33",
                                         font=("Arial", 14),
                                         foreground="white"
                                     )
-        self.pass_label = tkinter.Label(self.login_window, 
+        self.pass_label = tkinter.Label(self, 
                                         text="Contraseña:", 
                                         bg="#2E2F33",
                                         font=("Arial", 14),
                                         foreground="white"
                                     )
 
-        self.photo_image = PhotoImage(file="assets/images/register_button.png")
+        self.photo_image = PhotoImage(master=self, file="assets/images/register_button.png")
 
-        self.register_button = tkinter.Button(self.login_window,
+        self.register_button = tkinter.Button(self,
                                                 image=self.photo_image,
                                                 bg="#2E2F33",
                                                 activebackground="#2E2F33",
@@ -49,21 +52,21 @@ class LoginWindow:
                                                 command=self.register
                                             )
         
-        self.photo_image2 = PhotoImage(file="assets/images/login_button.png")
-        self.login_button = tkinter.Button(self.login_window,
+        self.photo_image2 = PhotoImage(master=self, file="assets/images/login_button.png")
+        self.login_button = tkinter.Button(self,
                                             image=self.photo_image2,
                                             bg="#2E2F33",
                                             activebackground="#2E2F33",
                                             borderwidth=0,
                                             command=self.verify_user_information,
                                         )
-        self.user_entry = tkinter.Entry(self.login_window, 
+        self.user_entry = tkinter.Entry(self, 
                                         bg="white",
                                         font=("Arial", 14),
                                         foreground="black",
                                         insertbackground="black", 
                                         borderwidth=0)
-        self.pass_entry = tkinter.Entry(self.login_window, 
+        self.pass_entry = tkinter.Entry(self, 
                                         show="*", 
                                         bg="white",
                                         insertbackground="black",
@@ -81,42 +84,46 @@ class LoginWindow:
         
     
     def start_window(self) -> None:
-        self.login_window.mainloop()
+        self.mainloop()
     
     def verify_user_information(self) -> None:
-        users = DataBase().read_rows("usuarios")
-        if (self.user_entry.get().strip(' ') == ""
-            or self.pass_entry.get().strip(' ') == ""):
-            print("Por favor, rellene los campos")
-        else:
-            for user in users:
-                if (self.user_entry.get() == user[1] and
-                    check_password_hash(user[2], self.pass_entry.get())):
-                    self.login_window.destroy()
-                    logged_user = User(user[0], user[1], user[2], user[3])
-                    try:
-                        notes_user = DataBase().search("notas", user[0])
-                        for note in notes_user:
-                            logged_user.create_note(note[1], note[2], note[3], note[4], note[5])
-                    except:
-                        pass
+        try:
+            users = DataBase().read_rows("usuarios")
+            if (self.user_entry.get().strip(' ') == ""
+                or self.pass_entry.get().strip(' ') == ""):
+                print("Por favor, rellene los campos")
+            else:
+                for user in users:
+                    if (self.user_entry.get() == user[1] and
+                        check_password_hash(user[2], self.pass_entry.get())):
+                        self.destroy()
+                        logged_user = User(user[0], user[1], user[2], user[3])
+                        try:
+                            notes_user = DataBase().search("notas", user[0])
+                            for note in notes_user:
+                                logged_user.create_note(note[1], note[2], note[3], note[4], note[5])
+                        except:
+                            pass
 
-                    try:
-                        tasks_user = DataBase().search("tareas", user[0])
-                        for task in tasks_user:
-                            logged_user.create_task(task[1], task[2], task[3], task[4], task[5])
-                    except:
-                        pass
+                        try:
+                            tasks_user = DataBase().search("tareas", user[0])
+                            for task in tasks_user:
+                                logged_user.create_task(task[1], task[2], task[3], task[4], task[5])
+                        except:
+                            pass
 
-                    try:
-                        meetings_user = DataBase().search("reuniones", user[0])
-                        for meeting in meetings_user:
-                            logged_user.create_note(meeting[1], meeting[2], meeting[3], meeting[4], meeting[5])
-                    except:
-                        pass
-                    ContainerWindow(logged_user)
-                    return
-            print("Los campos diligenciados no son correctos")
+                        try:
+                            meetings_user = DataBase().search("reuniones", user[0])
+                            for meeting in meetings_user:
+                                logged_user.create_meeting(meeting[1], meeting[2], meeting[3], meeting[4], meeting[5])
+                        except:
+                            pass
+                        ContainerWindow(logged_user)
+                        return
+                print("Los campos diligenciados no son correctos")
+        except:
+            print("No hay usuarios registrados")
+                
                     
     
     def register(self) -> None:
@@ -149,7 +156,7 @@ class LoginWindow:
                     id += 1
                 add_user(id)
 
-        register_window = tkinter.Tk()
+        register_window = tkinter.Toplevel(self)
         register_window.geometry("900x600")
         register_window.title("AJCalendar")
         register_window.resizable(False, False)
@@ -203,25 +210,29 @@ class LoginWindow:
         register_window.mainloop()
 
 
-class ContainerWindow():
+class ContainerWindow(tkinter.Tk):
     def __init__(self, user: User) -> None:
-        self.container_window = tkinter.Tk()
+        super().__init__()
         self.user = user
-        self.container_window.geometry("900x600")
-        self.container_window.title("AJCalendar")
-        self.container_window.resizable(False, False)
-        self.container_window.config(bg="#2E2F33")
+        self.geometry("900x600")
+        self.title("AJCalendar")
+        self.resizable(False, False)
+        self.config(bg="#2E2F33")
         
         for i in range(0, 50):
-            tkinter.Grid.rowconfigure(self.container_window, i, weight=1)
+            tkinter.Grid.rowconfigure(self, i, weight=1)
         
         for i in range(0, 10):
-            tkinter.Grid.columnconfigure(self.container_window, i, weight=1)
+            tkinter.Grid.columnconfigure(self, i, weight=1)
     
 
         self.photo_image_3 = PhotoImage(file="assets/images/NOTAS.png")
-
-        self.notas_button = tkinter.Button(self.container_window,
+        self.score_label = tkinter.Label(self, 
+                                        text= f"Puntos: {self.user.points}", 
+                                        fg="white", 
+                                        bg="#2E2F33",
+                                        font=("Arial", 14))
+        self.notas_button = tkinter.Button(self,
                                                 image=self.photo_image_3,
                                                 bg="#2E2F33",
                                                 activebackground="#2E2F33",
@@ -232,7 +243,7 @@ class ContainerWindow():
         
         self.photo_image_5 = PhotoImage(file="assets/images/TAREA.png")
 
-        self.task_button = tkinter.Button(self.container_window,
+        self.task_button = tkinter.Button(self,
                                                 image=self.photo_image_5,
                                                 bg="#2E2F33",
                                                 activebackground="#2E2F33",
@@ -241,39 +252,54 @@ class ContainerWindow():
                                             )
         self.photo_image_6 = PhotoImage(file="assets/images/MEET.png")
 
-        self.meet_button = tkinter.Button(self.container_window,
+        self.meet_button = tkinter.Button(self,
                                                 image=self.photo_image_6,
                                                 bg="#2E2F33",
                                                 activebackground="#2E2F33",
                                                 borderwidth=0,
                                                 command=self.create_meeting,
                                             )
+
+        self.log_out_button = tkinter.Button(self,
+                                            text="Salir",
+                                            command=self.log_out,
+                                        )
+
         try:                                
-            self.last_note = tkinter.Label(self.container_window, text=user.notes[-1])
+            self.last_note = tkinter.Button(self, text=self.user.notes[-1])
         except:
-            self.last_note = tkinter.Label(self.container_window, text="NO HAY NOTAS")
+            self.last_note = tkinter.Button(self, text="NO HAY NOTAS")
         try:
-            self.last_task = tkinter.Label(self.container_window, text=user.tasks[-1])
+            self.last_task = tkinter.Button(self, text=self.user.tasks[-1])
         except:
-            self.last_task = tkinter.Label(self.container_window, text="NO HAY TAREAS")
+            self.last_task = tkinter.Button(self, text="NO HAY TAREAS")
 
         try:
-            self.last_meeting = tkinter.Label(self.container_window, text=user.meetings[-1])
+            self.last_meeting = tkinter.Button(self, text=self.user.meetings[-1])
         except:
-            self.last_meeting = tkinter.Label(self.container_window, text="NO HAY REUNIONES")
+            self.last_meeting = tkinter.Button(self, text="NO HAY REUNIONES")
 
-        self.last_note.config(font=("Arial", 18), bg="#2E2F33", fg="white")
-        self.last_task.config(font=("Arial", 18), bg="#2E2F33", fg="white")
-        self.last_meeting.config(font=("Arial", 18), bg="#2E2F33", fg="white")
+        self.last_note.config(font=("Arial", 18), bg="#2E2F33", fg="white", borderwidth=0, command=self.note_window)
+        self.last_task.config(font=("Arial", 18), bg="#2E2F33", fg="white", borderwidth=0, command=self.task_window)
+        self.last_meeting.config(font=("Arial", 18), bg="#2E2F33", fg="white", borderwidth=0, command=self.meeting_window)
 
-        self.last_note.grid(row=10, column=5, sticky="w")
-        self.last_task.grid(row=13, column=5, sticky="w")
-        self.last_meeting.grid(row=16, column=5, sticky="w")
+        self.last_note.grid(row=10, column=5, sticky="ew")
+        self.last_task.grid(row=13, column=5, sticky="ew")
+        self.last_meeting.grid(row=16, column=5, sticky="ew")
+
+        self.log_out_button.grid(row=2, column=0, sticky="nsew")
+
         self.notas_button.grid(row=10, column=1, sticky="nsew")
         self.task_button.grid(row=13, column=1, sticky="nsew")
         self.meet_button.grid(row=16, column=1, sticky="nsew")
-        self.container_window.mainloop()
+        self.score_label.grid(row=20, column=7, sticky="nsew")
+        self.mainloop()
 
+    def log_out(self) -> None:
+        self.destroy()
+        w = LoginWindow()
+        w.start_window()
+        
     def create_note(self) -> None:
         def add_note(data):
             self.user.create_note(data[0], data[1], data[2], "Arial", 11)
@@ -288,6 +314,9 @@ class ContainerWindow():
                 note_window.destroy()
             finally:
                 self.last_note.config(text=data[0])
+                self.user.earn_points(5)
+                self.score_label.config(text=f"Puntos: {self.user.points}")
+                DataBase().update(self.user.user_id, "puntaje", self.user.points)
 
         def verify_fields():
             if name_entry.get().strip(' ') == "":
@@ -296,12 +325,11 @@ class ContainerWindow():
                 data = [name_entry.get(), description_entry.get("1.0", "end"), selection.get()]
                 add_note(data)
 
-        note_window = tkinter.Tk()
+        note_window = tkinter.Toplevel(self)
         note_window.geometry("600x700")
         note_window.title("AJCalendar")
         note_window.resizable(False, False)
         note_window.config(bg="#2E2F33")
-        
         selection = tkinter.StringVar()
         selection.set("Baja")
         name_entry = tkinter.Entry(note_window,
@@ -368,17 +396,18 @@ class ContainerWindow():
                 print("Ingrese fecha válida")
             elif calendar.get_date().month < datetime.now().month:
                 print("Ingrese fecha válida")
-            elif calendar.get_date().day < datetime.now().month:
+            elif calendar.get_date().day < datetime.now().day:
                 print("Ingrese fecha válida")
             else:
                 data = [name_entry.get(), description_entry.get("1.0", "end"), selection.get(), calendar.get_date()]
                 add_task(data)
 
-        task_window = tkinter.Tk()
+        task_window = tkinter.Toplevel(self)
         task_window.geometry("600x720")
         task_window.title("AJCalendar")
         task_window.resizable(False, False)
         task_window.config(bg="#2E2F33")
+
         selection = tkinter.StringVar()
         selection.set("Baja")
         name_entry = tkinter.Entry(task_window,
@@ -437,7 +466,7 @@ class ContainerWindow():
         task_window.mainloop()
     
     def create_meeting(self) -> None:
-        def add_task(data):
+        def add_meeting(data):
             self.user.create_meeting(data[0], data[1], data[2], data[3], data[4])
             db = DataBase()
             try:
@@ -461,9 +490,9 @@ class ContainerWindow():
                 print("Ingrese fecha válida")
             elif calendar.get_date().day < datetime.now().day:
                 print("Ingrese fecha válida")
-            elif int(hour.get()) < datetime.now().hour:
+            elif (calendar.get_date().day == datetime.now().day and int(hour.get()) < datetime.now().hour):
                 print("Ingrese hora válida")
-            elif int(minute.get()) < datetime.now().minute:
+            elif (int(hour.get()) == datetime.now().hour and int(minute.get()) < datetime.now().minute):
                 print("Ingrese minuto válido")
             else:
                 data = [
@@ -473,12 +502,13 @@ class ContainerWindow():
                     link_entry.get(),
                     str(calendar.get_date())+". "+str(hour.get())+":"+str(minute.get())
                 ]
-                add_task(data)
-        meeting_window = tkinter.Tk()
+                add_meeting(data)
+        meeting_window = tkinter.Toplevel(self)
         meeting_window.geometry("600x700")
         meeting_window.title("AJCalendar")
         meeting_window.resizable(False, False)
         meeting_window.config(bg="#2E2F33")
+
         selection = tkinter.StringVar()
         selection.set("Baja")
 
@@ -508,8 +538,8 @@ class ContainerWindow():
         hour = tkinter.StringVar()
         minute_options = [int(i) for i in range(0, 60)]
         hour_options = [int(i) for i in range(0, 24)]
-        minute.set(minute_options[1])
-        hour.set(hour_options[1])
+        minute.set(minute_options[0])
+        hour.set(hour_options[0])
 
         title_label = tkinter.Label(meeting_window, 
                                     text="Reunión",
@@ -598,3 +628,163 @@ class ContainerWindow():
         relevance_menu.place(width=100, height=30, x=150, y=190)
         description_label.place(width=100, height=30, x=20, y=300)
         description_entry.place(width=320, height=100, x=130, y=275)
+
+    def note_window(self) -> None:
+        def remove_note():
+            try:
+                index = self.get_index_tree(note_tree, self.user.notes)
+                note_tree.delete(note_tree.selection())
+                DataBase().delete_item("tareas", self.user.user_id, self.user.notes[index].name)
+                self.user.remove_note(self.user.notes[index])
+            except:
+                print("Por favor, seleccione el elemento a eliminar")
+        note_window = tkinter.Toplevel(self)
+        note_window.title("AJCalendar")
+        note_window.geometry("800x400")
+        note_window.resizable(False, False)
+
+        columns = ("name", "description", "relevance", "creation_date")
+
+        note_tree = Treeview(note_window, columns=columns, show="headings")
+
+        note_tree.heading("name", text="Nombre")
+        note_tree.heading("description", text="Descripción")
+        note_tree.heading("relevance", text="Relevancia")
+        note_tree.heading("creation_date", text="Fecha de creación")
+
+        note_tree.column("name", width=150, anchor="center")
+        note_tree.column("description", width=250, anchor="center")
+        note_tree.column("relevance", width=100, anchor="center")
+        note_tree.column("creation_date", width=150, anchor="center")
+
+        for note in self.user.notes:
+            values = (note.name, note.description, 
+                    note.relevance_level, note.creation_date)
+            note_tree.insert('', 0, values=values)
+        note_tree.grid(row=0, column=0, sticky="nsew")
+        delete_button = tkinter.Button(note_window, text="Eliminar nota", bg="#C42B1C", fg="white", command=remove_note)
+        
+        delete_button.place(width=125, height=50, x=150, y=300)
+        self.scrollbar(note_window, note_tree)
+
+        note_window.mainloop()
+
+    def task_window(self) -> None:
+        def complete_task():
+            try:
+                self.user.earn_points(10)
+                self.score_label.config(text=f"Puntos: {self.user.points}")
+                DataBase().update(self.user.user_id, "puntaje", self.user.points)
+                remove_task()
+            except:
+                pass  
+        def remove_task():
+            try:
+                index = self.get_index_tree(task_tree, self.user.tasks)
+                task_tree.delete(task_tree.selection())
+                DataBase().delete_item("tareas", self.user.user_id, self.user.tasks[index].name)
+                self.user.remove_task(self.user.tasks[index])
+            except:
+                print("Por favor, seleccione el elemento a eliminar")
+        task_window = tkinter.Toplevel(self)
+        task_window.title("AJCalendar")
+        task_window.geometry("850x400")
+        task_window.resizable(False, False)
+
+        columns = ("name", "description", "relevance", "creation_date", "due_date")
+
+        task_tree = Treeview(task_window, columns=columns, show="headings")
+
+        task_tree.heading("name", text="Nombre")
+        task_tree.heading("description", text="Descripción")
+        task_tree.heading("relevance", text="Relevancia")
+        task_tree.heading("creation_date", text="Fecha de creación")
+        task_tree.heading("due_date", text="Fecha límite")
+
+        task_tree.column("name", width=150, anchor="center")
+        task_tree.column("description", width=250, anchor="center")
+        task_tree.column("relevance", width=100, anchor="center")
+        task_tree.column("creation_date", width=150, anchor="center")
+        task_tree.column("due_date", width=150, anchor="center")
+
+        for task in self.user.tasks:
+            values = (task.name, task.description, 
+                    task.relevance_level, task.creation_date,
+                    task.due_date)
+            task_tree.insert('', 0, values=values)
+        task_tree.grid(row=0, column=0, sticky="nsew")
+        delete_button = tkinter.Button(task_window, text="Eliminar tarea", bg="#C42B1C", fg="white", command=remove_task)
+        complete_button = tkinter.Button(task_window, text="Marcar hecho", bg="#1ED760", fg="white", command=complete_task)
+        
+        delete_button.place(width=125, height=50, x=150, y=300)
+        complete_button.place(width=125, height=50, x=450, y=300)
+        self.scrollbar(task_window, task_tree)
+
+        task_window.mainloop()
+
+    def meeting_window(self) -> None:
+        def complete_meeting():
+            try:
+                self.user.earn_points(10)
+                self.score_label.config(text=f"Puntos: {self.user.points}")
+                DataBase().update(self.user.user_id, "puntaje", self.user.points)
+                remove_meeting()
+            except:
+                pass  
+        def remove_meeting():
+            try:
+                index = self.get_index_tree(meeting_tree, self.user.meetings)
+                meeting_tree.delete(meeting_tree.selection())
+                DataBase().delete_item("reuniones", self.user.user_id, self.user.meetings[index].name)
+                self.user.remove_meeting(self.user.meetings[index])
+            except:
+                print("Por favor, seleccione el elemento a eliminar")
+        meeting_window = tkinter.Toplevel(self)
+        meeting_window.title("AJCalendar")
+        meeting_window.geometry("1050x400")
+        meeting_window.resizable(False, False)
+
+        columns = ("name", "description", "relevance", "creation_date", "link", "meeting_date")
+
+        meeting_tree = Treeview(meeting_window, columns=columns, show="headings")
+
+        meeting_tree.heading("name", text="Nombre")
+        meeting_tree.heading("description", text="Descripción")
+        meeting_tree.heading("relevance", text="Relevancia")
+        meeting_tree.heading("creation_date", text="Fecha de creación")
+        meeting_tree.heading("link", text="Link")
+        meeting_tree.heading("meeting_date", text="Fecha")
+
+        meeting_tree.column("name", width=150, anchor="center")
+        meeting_tree.column("description", width=200, anchor="center")
+        meeting_tree.column("relevance", width=100, anchor="center")
+        meeting_tree.column("creation_date", width=150, anchor="center")
+        meeting_tree.column("creation_date", width=150, anchor="center")
+        meeting_tree.column("creation_date", width=150, anchor="center")
+
+        for meeting in self.user.meetings:
+            values = (meeting.name, meeting.description, 
+                    meeting.relevance_level, meeting.creation_date,
+                    meeting.link, meeting.meeting_date)
+            meeting_tree.insert('', 0, values=values)
+        meeting_tree.grid(row=0, column=0, sticky="nsew")
+        delete_button = tkinter.Button(meeting_window, text="Eliminar reunión", bg="#C42B1C", fg="white", command=remove_meeting)
+        complete_button = tkinter.Button(meeting_window, text="Marcar asistido", bg="#1ED760", fg="white", command=complete_meeting)
+
+        delete_button.place(width=125, height=50, x=150, y=300)
+        complete_button.place(width=125, height=50, x=450, y=300)
+        self.scrollbar(meeting_window, meeting_tree)
+
+        meeting_window.mainloop()
+
+    def get_index_tree(self, tree: Treeview, item_list: list) -> int:
+        for item in item_list:
+            if tree.item(tree.selection())["values"][0] == item.name:
+                return item_list.index(item)
+
+    def scrollbar(self, root: tkinter.Tk, tree: Treeview) -> None:
+        y_scrollbar = Scrollbar(root, orient="vertical", command=tree.yview)
+        x_scrollbar = Scrollbar(root, orient="horizontal", command=tree.xview)
+        tree.configure(yscroll=y_scrollbar.set, xscroll=x_scrollbar.set)
+        y_scrollbar.grid(row=0, column=1, sticky="ns")
+        x_scrollbar.grid(row=1, column=0, sticky="ew")

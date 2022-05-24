@@ -165,3 +165,24 @@ class DataBase:
         self.conn.commit()
         self.conn.close()
         return data
+    
+    def update(self, user_id: int, field: Any, updated_field: Any) -> None:
+        self.conn = sql.connect("usuarios.db")
+        self.cursor = self.conn.cursor()
+        self.cursor.execute(f"UPDATE usuarios set '{field}' = '{updated_field}' WHERE usuario_id={user_id}")
+        self.conn.commit()
+        self.conn.close()
+
+    def delete_user(self, field: Any) -> None:
+        self.conn = sql.connect(f"{USERS}.db")
+        self.cursor = self.conn.cursor()
+        self.cursor.execute(f"DELETE FROM '{USERS}' WHERE usuario_id='{field}'")
+        self.conn.commit()
+        self.conn.close()
+    
+    def delete_item(self, database_name: str, user_id: int, name: str) -> None:
+        self.conn = sql.connect(f"{database_name}.db")
+        self.cursor = self.conn.cursor()
+        self.cursor.execute(f"DELETE FROM '{database_name}' WHERE usuario_id=? and nombre=?", (user_id, name))
+        self.conn.commit()
+        self.conn.close()

@@ -62,14 +62,14 @@ class User:
     def block_distractions(self):
         pass
     
-    def remove_task(self, index: int):
-        self.__tasks.remove[index]
+    def remove_task(self, task: Task):
+        self.__tasks.remove(task)
     
-    def remove_meeting(self, index: int):
-        self.__meetings.remove[index]
+    def remove_meeting(self, meeting: Meeting):
+        self.__meetings.remove(meeting)
     
-    def remove_note(self, index: int):
-        self.__notes.remove[index]
+    def remove_note(self, note: Note):
+        self.__notes.remove(note)
     
     @property
     def username(self) -> str:
