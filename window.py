@@ -1,6 +1,9 @@
 from ctypes import windll
 from datetime import datetime
 from user import User
+from note import Note
+from meeting import Meeting
+from task import Task
 from database import DataBase
 from werkzeug.security import check_password_hash
 import tkinter
@@ -9,8 +12,7 @@ from tkcalendar import DateEntry
 
 windll.shcore.SetProcessDpiAwareness(1)
 
-class LoginWindow:
-    
+class LoginWindow: 
     def __init__(self) -> None:
         self.login_window = tkinter.Tk()
         self.login_window.geometry("900x600")
@@ -91,7 +93,28 @@ class LoginWindow:
                 if (self.user_entry.get() == user[1] and
                     check_password_hash(user[2], self.pass_entry.get())):
                     self.login_window.destroy()
-                    ContainerWindow(User(user[0], user[1], user[2], user[3]))
+                    logged_user = User(user[0], user[1], user[2], user[3])
+                    try:
+                        notes_user = DataBase().search("notas", user[0])
+                        for note in notes_user:
+                            logged_user.create_note(note[1], note[2], note[3], note[4], note[5])
+                    except:
+                        pass
+
+                    try:
+                        tasks_user = DataBase().search("tareas", user[0])
+                        for task in tasks_user:
+                            logged_user.create_task(task[1], task[2], task[3], task[4], task[5])
+                    except:
+                        pass
+
+                    try:
+                        meetings_user = DataBase().search("reuniones", user[0])
+                        for meeting in meetings_user:
+                            logged_user.create_note(meeting[1], meeting[2], meeting[3], meeting[4], meeting[5])
+                    except:
+                        pass
+                    ContainerWindow(logged_user)
                     return
             print("Los campos diligenciados no son correctos")
                     
@@ -169,7 +192,6 @@ class LoginWindow:
                                 borderwidth=0,
                                 command=verify_user
                             )
-
         user_register_label.grid(row=25, column=3, sticky="nsew")
         user_register_entry.grid(row=25, column=4, sticky="nsew")
         password_register_label.grid(row=28, column=3, sticky="nsew")
@@ -224,22 +246,86 @@ class ContainerWindow():
                                                 bg="#2E2F33",
                                                 activebackground="#2E2F33",
                                                 borderwidth=0,
-                                                command=self.create_meeting
+                                                command=self.create_meeting,
                                             )
-        
-        self.notas_button.grid(row=10, column=1,sticky="nsew")
-        self.task_button.grid(row=13, column=1,sticky="nsew")
-        self.meet_button.grid(row=16, column=1,sticky="nsew")
+        try:                                
+            self.last_note = tkinter.Label(self.container_window, text=user.notes[-1])
+        except:
+            self.last_note = tkinter.Label(self.container_window, text="NO HAY NOTAS")
+        try:
+            self.last_task = tkinter.Label(self.container_window, text=user.tasks[-1])
+        except:
+            self.last_task = tkinter.Label(self.container_window, text="NO HAY TAREAS")
+
+        try:
+            self.last_meeting = tkinter.Label(self.container_window, text=user.meetings[-1])
+        except:
+            self.last_meeting = tkinter.Label(self.container_window, text="NO HAY REUNIONES")
+
+        self.last_note.config(font=("Arial", 18), bg="#2E2F33", fg="white")
+        self.last_task.config(font=("Arial", 18), bg="#2E2F33", fg="white")
+        self.last_meeting.config(font=("Arial", 18), bg="#2E2F33", fg="white")
+
+        self.last_note.grid(row=10, column=5, sticky="w")
+        self.last_task.grid(row=13, column=5, sticky="w")
+        self.last_meeting.grid(row=16, column=5, sticky="w")
+        self.notas_button.grid(row=10, column=1, sticky="nsew")
+        self.task_button.grid(row=13, column=1, sticky="nsew")
+        self.meet_button.grid(row=16, column=1, sticky="nsew")
         self.container_window.mainloop()
 
-       
     def create_note(self) -> None:
+        def add_note(data):
+            self.user.create_note(data[0], data[1], data[2], "Arial", 11)
+            db = DataBase()
+            try:
+                db.insert_note(self.user.user_id, Note(data[0], data[1], data[2], "Arial", 11))
+                note_window.destroy()
+            except:
+                db.create_notes_database()
+                db.create_notes_table()
+                db.insert_note(self.user.user_id, Note(data[0], data[1], data[2], "Arial", 11))
+                note_window.destroy()
+            finally:
+                self.last_note.config(text=data[0])
+
+        def verify_fields():
+            if name_entry.get().strip(' ') == "":
+                print("Ingrese correctamente los campos")
+            else:
+                data = [name_entry.get(), description_entry.get("1.0", "end"), selection.get()]
+                add_note(data)
+
         note_window = tkinter.Tk()
         note_window.geometry("600x700")
         note_window.title("AJCalendar")
         note_window.resizable(False, False)
         note_window.config(bg="#2E2F33")
-        self.create_item(note_window)
+        
+        selection = tkinter.StringVar()
+        selection.set("Baja")
+        name_entry = tkinter.Entry(note_window,
+                                bg="white",
+                                font=("Arial", 11),
+                                foreground="black",
+                                insertbackground="black", 
+                                borderwidth=0
+                            )
+
+        relevance_menu = tkinter.OptionMenu(note_window, selection, *["Baja", "Media", "Alta"])
+        
+        description_entry = tkinter.Text(note_window,
+                                        bg="white", 
+                                        width=25, 
+                                        height=4,
+                                        insertbackground="black",
+                                        foreground="black",
+                                        borderwidth=0
+                                    )
+
+        self.create_item(note_window, name_entry,
+                        relevance_menu,
+                        description_entry)
         
         title_label = tkinter.Label(note_window, text="Nota",bg="#2E2F33",font=("Arial", 20),
                                         foreground="white")
@@ -252,7 +338,8 @@ class ContainerWindow():
                                                 image=photo_image_7,
                                                 bg="#2E2F33",
                                                 activebackground="#2E2F33",
-                                                borderwidth=0
+                                                borderwidth=0,
+                                                command=verify_fields
                                             )
         
         title_label.place(width=150, height=100, x=225, y=20)
@@ -260,12 +347,62 @@ class ContainerWindow():
         note_window.mainloop()
     
     def create_task(self) -> None:
+        def add_task(data):
+            self.user.create_task(data[0], data[1], data[2], data[3], False)
+            db = DataBase()
+            try:
+                db.insert_task(self.user.user_id, Task(data[0], data[1], data[2], data[3], False))
+                task_window.destroy()
+            except:
+                db.create_tasks_database()
+                db.create_tasks_table()
+                db.insert_task(self.user.user_id, Task(data[0], data[1], data[2], data[3], False))
+                task_window.destroy()
+            finally:
+                self.last_task.config(text=data[0])
+
+        def verify_fields():
+            if name_entry.get().strip(' ') == "":
+                print("Rellene los campos, por favor")
+            elif calendar.get_date().year < datetime.now().year:
+                print("Ingrese fecha válida")
+            elif calendar.get_date().month < datetime.now().month:
+                print("Ingrese fecha válida")
+            elif calendar.get_date().day < datetime.now().month:
+                print("Ingrese fecha válida")
+            else:
+                data = [name_entry.get(), description_entry.get("1.0", "end"), selection.get(), calendar.get_date()]
+                add_task(data)
+
         task_window = tkinter.Tk()
         task_window.geometry("600x720")
         task_window.title("AJCalendar")
         task_window.resizable(False, False)
         task_window.config(bg="#2E2F33")
-        self.create_item(task_window)
+        selection = tkinter.StringVar()
+        selection.set("Baja")
+        name_entry = tkinter.Entry(task_window,
+                                bg="white",
+                                font=("Arial", 11),
+                                foreground="black",
+                                insertbackground="black", 
+                                borderwidth=0
+                            )
+
+        relevance_menu = tkinter.OptionMenu(task_window, selection, *["Baja", "Media", "Alta"])
+        
+        description_entry = tkinter.Text(task_window,
+                                        bg="white", 
+                                        width=25, 
+                                        height=4,
+                                        insertbackground="black",
+                                        foreground="black",
+                                        borderwidth=0
+                                    )
+
+        self.create_item(task_window, name_entry,
+                        relevance_menu,
+                        description_entry)
 
         title_label = tkinter.Label(task_window, 
                                     text="Tarea",
@@ -290,7 +427,8 @@ class ContainerWindow():
                                                 image=photo_image_7,
                                                 bg="#2E2F33",
                                                 activebackground="#2E2F33",
-                                                borderwidth=0
+                                                borderwidth=0,
+                                                command=verify_fields
                                             )
         title_label.place(width=150, height=100, x=225, y=20)
         due_date_label.place(width=150, height=30, x=0, y=400)
@@ -299,12 +437,72 @@ class ContainerWindow():
         task_window.mainloop()
     
     def create_meeting(self) -> None:
+        def add_task(data):
+            self.user.create_meeting(data[0], data[1], data[2], data[3], data[4])
+            db = DataBase()
+            try:
+                db.insert_meeting(self.user.user_id, Meeting(data[0], data[1], data[2], data[3], data[4]))
+                meeting_window.destroy()
+            except:
+                db.create_meetings_database()
+                db.create_meetings_table()
+                db.insert_meeting(self.user.user_id, Meeting(data[0], data[1], data[2], data[3], data[4]))
+                meeting_window.destroy()
+            finally:
+                self.last_meeting.config(text=data[0])
+
+        def verify_fields():
+            if (name_entry.get().strip(' ') == ""
+                or link_entry.get().strip(' ') == ""):
+                print("Rellene los campos, por favor")
+            elif calendar.get_date().year < datetime.now().year:
+                print("Ingrese fecha válida")
+            elif calendar.get_date().month < datetime.now().month:
+                print("Ingrese fecha válida")
+            elif calendar.get_date().day < datetime.now().day:
+                print("Ingrese fecha válida")
+            elif int(hour.get()) < datetime.now().hour:
+                print("Ingrese hora válida")
+            elif int(minute.get()) < datetime.now().minute:
+                print("Ingrese minuto válido")
+            else:
+                data = [
+                    name_entry.get(), 
+                    description_entry.get("1.0", "end"), 
+                    selection.get(),  
+                    link_entry.get(),
+                    str(calendar.get_date())+". "+str(hour.get())+":"+str(minute.get())
+                ]
+                add_task(data)
         meeting_window = tkinter.Tk()
         meeting_window.geometry("600x700")
         meeting_window.title("AJCalendar")
         meeting_window.resizable(False, False)
         meeting_window.config(bg="#2E2F33")
-        self.create_item(meeting_window)
+        selection = tkinter.StringVar()
+        selection.set("Baja")
+
+        name_entry = tkinter.Entry(meeting_window,
+                                bg="white",
+                                font=("Arial", 11),
+                                foreground="black",
+                                insertbackground="black", 
+                                borderwidth=0
+                            )
+
+        relevance_menu = tkinter.OptionMenu(meeting_window, selection, *["Baja", "Media", "Alta"])
+        description_entry = tkinter.Text(meeting_window,
+                                        bg="white", 
+                                        width=25, 
+                                        height=4,
+                                        insertbackground="black",
+                                        foreground="black",
+                                        borderwidth=0
+                                    )
+
+        self.create_item(meeting_window, name_entry,
+                        relevance_menu,
+                        description_entry)
 
         minute = tkinter.StringVar()
         hour = tkinter.StringVar()
@@ -321,7 +519,7 @@ class ContainerWindow():
                                 )
 
         due_date_label = tkinter.Label(meeting_window,
-                                        text="Fecha límite:",
+                                        text="Fecha:",
                                         bg="#2E2F33",
                                         font=("Arial", 11),
                                         foreground="white"
@@ -362,7 +560,8 @@ class ContainerWindow():
                                                 image=photo_image_7,
                                                 bg="#2E2F33",
                                                 activebackground="#2E2F33",
-                                                borderwidth=0
+                                                borderwidth=0,
+                                                command=verify_fields
                                             )
         
         title_label.place(width=150, height=100, x=225, y=20)
@@ -376,15 +575,15 @@ class ContainerWindow():
         create_meeting_button.place(width=250, height=100, x=125, y=550)
         meeting_window.mainloop()
     
-    def create_item(self, root: tkinter.Tk):
-        selection = tkinter.StringVar()
-        selection.set("Baja")
+    def create_item(self, root: tkinter.Tk, name_entry: tkinter.Entry,
+                    relevance_menu: tkinter.OptionMenu,
+                    description_entry: tkinter.Entry):
         
-        name_label = tkinter.Label(root, text="Nombre:",bg="#2E2F33",font=("Arial", 11),
+        name_label = tkinter.Label(root, text="Nombre:", bg="#2E2F33",font=("Arial", 11),
                                         foreground="white")
-       
+    
         relevance_label = tkinter.Label(root, 
-                                        text="Relevancia:",bg="#2E2F33",font=("Arial", 11),
+                                        text="Relevancia:", bg="#2E2F33",font=("Arial", 11),
                                         foreground="white")
 
         description_label = tkinter.Label(root, 
@@ -392,58 +591,10 @@ class ContainerWindow():
                                         bg="#2E2F33",
                                         font=("Arial", 11),
                                         foreground="white")    
-
-        name_entry = tkinter.Entry(root,
-                                bg="white",
-                                font=("Arial", 11),
-                                foreground="black",
-                                insertbackground="black", 
-                                borderwidth=0
-                            )
-
-        high_relevance_option = tkinter.Radiobutton(root,
-                                                    bg="#2E2F33", 
-                                                    text="Alta",
-                                                    activebackground="#2E2F33",
-                                                    fg="gray",
-                                                    activeforeground="gray",
-                                                    value="Alta",
-                                                    variable=selection
-                                                )
-                                        
-        medium_relevance_option = tkinter.Radiobutton(root, 
-                                                    bg="#2E2F33", 
-                                                    text="Media",
-                                                    activebackground="#2E2F33",
-                                                    fg="gray",
-                                                    activeforeground="gray",
-                                                    value="Media",
-                                                    variable=selection
-                                                )
-
-        low_relevance_option = tkinter.Radiobutton(root,
-                                                    bg="#2E2F33", 
-                                                    text="Baja",
-                                                    activebackground="#2E2F33",
-                                                    fg="gray",
-                                                    activeforeground="gray",
-                                                    value="Baja",
-                                                    variable=selection
-                                                )
-        
-        description_entry = tkinter.Text(root,bg="white", 
-                                                width=25, 
-                                                height=4,
-                                                insertbackground="black",
-                                                foreground="black",
-                                                borderwidth=0
-                                            )
         
         name_label.place(width=75, height=30, x=20, y=120)
         name_entry.place(width=320, height=30, x=130, y = 120)
         relevance_label.place(width=95, height=20, x=25, y=190)
-        high_relevance_option.place(x=130, y=190)
-        medium_relevance_option.place(x=230, y=190)
-        low_relevance_option.place(x=330, y=190)
+        relevance_menu.place(width=100, height=30, x=150, y=190)
         description_label.place(width=100, height=30, x=20, y=300)
         description_entry.place(width=320, height=100, x=130, y=275)

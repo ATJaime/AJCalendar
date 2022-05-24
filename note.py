@@ -7,19 +7,19 @@ class Note(Item):
             self,
             name: str,
             description: str, 
-            relevance_level: int,
+            relevance_level: str,
             font: str, 
             font_size: float, 
     ) -> None:
         self.__name = name
         self.__description = description
         self.__relevance_level = relevance_level
-        self.__creation_date = datetime.strftime(datetime.now(), '%d-%m-%Y')
+        self.__creation_date = datetime.strftime(datetime.now(), '%Y-%m-%d')
         self.__font = font
         self.__font_size = font_size
     
     def __str__(self) -> str:
-        return self.name
+        return self.__name
     
     @property
     def font(self) -> str:

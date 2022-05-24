@@ -6,19 +6,19 @@ class Task(Item):
         self,
         name: str,
         description: str, 
-        relevance_level: int,  
+        relevance_level: str,  
         due_date: date, 
         is_done: bool = False
     )-> None:
         self.__name = name
         self.__description = description
         self.__relevance_level = relevance_level
-        self.__creation_date = datetime.strftime(datetime.now(), '%d-%m-%Y')
+        self.__creation_date = datetime.strftime(datetime.now(), '%Y-%m-%d')
         self.__due_date = due_date
         self.__is_done = is_done
     
     def __str__(self) -> str:
-        return self.name
+        return self.__name
     
     @property
     def state(self) -> bool:

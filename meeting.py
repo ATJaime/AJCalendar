@@ -1,24 +1,25 @@
 from item import Item
 from datetime import date
 from datetime import datetime
+import webbrowser
 class Meeting(Item):
     def __init__(
             self,
             name: str,
             description: str, 
-            relevance_level: int, 
+            relevance_level: str, 
             link: str, 
             meeting_date: date
     ) -> None:
         self.__name = name
         self.__description = description
         self.__relevance_level = relevance_level
-        self.__creation_date = datetime.strftime(datetime.now(), '%d-%m-%Y')
+        self.__creation_date = datetime.strftime(datetime.now(), '%Y-%m-%d')
         self.__link = link
         self.__meeting_date = meeting_date
     
     def __str__(self) -> str:
-        return self.name
+        return self.__name
 
     @property
     def link(self) -> str:
@@ -67,3 +68,6 @@ class Meeting(Item):
     @creation_date.setter
     def creation_date(self, date: date) -> date:
         self.__creation_date = date
+    
+    def open_meeting(self) -> None:
+        webbrowser.open(self.link)
