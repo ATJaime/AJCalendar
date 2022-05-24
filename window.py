@@ -98,6 +98,9 @@ class LoginWindow(tkinter.Tk):
                         check_password_hash(user[2], self.pass_entry.get())):
                         self.destroy()
                         logged_user = User(user[0], user[1], user[2], user[3])
+                        DataBase().create_notes_table
+                        DataBase().create_tasks_table
+                        DataBase().create_meetings_table
                         try:
                             notes_user = DataBase().search("notas", user[0])
                             for note in notes_user:
@@ -124,8 +127,6 @@ class LoginWindow(tkinter.Tk):
         except:
             print("No hay usuarios registrados")
                 
-                    
-    
     def register(self) -> None:
         def add_user(id: int) -> None:
             new_user = User(id, 
@@ -219,12 +220,7 @@ class ContainerWindow(tkinter.Tk):
         self.resizable(False, False)
         self.config(bg="#2E2F33")
         
-        for i in range(0, 50):
-            tkinter.Grid.rowconfigure(self, i, weight=1)
-        
-        for i in range(0, 10):
-            tkinter.Grid.columnconfigure(self, i, weight=1)
-    
+        self.config_grid(self)
 
         self.photo_image_3 = PhotoImage(file="assets/images/NOTAS.png")
         self.score_label = tkinter.Label(self, 
@@ -260,6 +256,11 @@ class ContainerWindow(tkinter.Tk):
                                                 command=self.create_meeting,
                                             )
 
+        self.config_button = tkinter.Button(self,
+                                            text="O",
+                                            command=self.config_window
+                                        )
+
         self.log_out_button = tkinter.Button(self,
                                             text="Salir",
                                             command=self.log_out,
@@ -288,18 +289,92 @@ class ContainerWindow(tkinter.Tk):
         self.last_meeting.grid(row=16, column=5, sticky="ew")
 
         self.log_out_button.grid(row=2, column=0, sticky="nsew")
-
+        self.config_button.grid(row=2, column=9, sticky="nsew")
         self.notas_button.grid(row=10, column=1, sticky="nsew")
         self.task_button.grid(row=13, column=1, sticky="nsew")
         self.meet_button.grid(row=16, column=1, sticky="nsew")
         self.score_label.grid(row=20, column=7, sticky="nsew")
         self.mainloop()
+    
+    def config_grid(self, root: tkinter.Tk) -> None:
+        for i in range(0, 40):
+            tkinter.Grid.rowconfigure(root, i, weight=1)
+        for i in range(0, 10):
+            tkinter.Grid.columnconfigure(root, i, weight=1)
 
     def log_out(self) -> None:
         self.destroy()
         w = LoginWindow()
         w.start_window()
+
+    def config_window(self) -> None:
+        def delete_account():
+            for task in self.user.tasks:
+                DataBase().delete_item("tareas", self.user.user_id, task.name)
+            for note in self.user.notes:
+                DataBase().delete_item("notas", self.user.user_id, note.name)
+            for meeting in self.user.meetings:
+                DataBase().delete_item("reuniones", self.user.user_id, meeting.name)
+            DataBase().delete_user(self.user.user_id)
+            self.log_out()
+
+        def change_password():
+            if password_entry.get().strip(' ') == "":
+                print("Ingrese una contraseña")
+            elif password_entry.get() != confirm_password_entry.get():
+                print("Las contraseñas no coinciden")
+            else:
+                self.user.password = password_entry.get()
+                DataBase().update(self.user.user_id, "contraseña", self.user.password)
+            
+        def change_name():
+            if name_entry.get().strip(' ') == "":
+                print("Ingrese un nombre de usuario")
+            else:
+                data = DataBase().read_rows("usuarios")
+                for dat in data:
+                    if name_entry.get() in dat:
+                        print("Este nombre de usuario ya está siendo usado")
+                        return
+                self.user.username = name_entry.get()
+                DataBase().update(self.user.user_id, "usuario", self.user.username)
+
+        config_window = tkinter.Toplevel(self)
+        config_window.geometry("600x700")
+        config_window.title("Configuración de la cuenta")
+        config_window.resizable(False, False)
+        config_window.config(bg="#2E2F33")
+
+        self.config_grid(config_window)
+
+        name_label = tkinter.Label(config_window, text="Nombre de usuario:", bg="#2E2F33", fg="white")
+        password_label = tkinter.Label(config_window, text="Contraseña:", bg="#2E2F33", fg="white")
+        confirm_password_label = tkinter.Label(config_window, text="Confirmar contraseña:", bg="#2E2F33", fg="white")
+
+        name_entry = tkinter.Entry(config_window, font=("Arial", 12))
+        password_entry = tkinter.Entry(config_window, show="*", font=("Arial", 12))
+        confirm_password_entry = tkinter.Entry(config_window, show="*", font=("Arial", 12))
+        name_entry.insert("end", self.user.username)
+
+        delete_button = tkinter.Button(config_window, text="Eliminar cuenta", command=delete_account)
+        change_password_button = tkinter.Button(config_window, text="Cambiar contraseña", command=change_password)
+        change_name_button = tkinter.Button(config_window, text="Cambiar nombre", command=change_name)
+
         
+
+        name_label.grid(row=20, column=2, sticky="nsw")
+        password_label.grid(row=22, column=2, sticky="nsw")
+        confirm_password_label.grid(row=24, column=2, sticky="nsw")
+
+        name_entry.grid(row=20, column=3, sticky="nsew")
+        password_entry.grid(row=22, column=3, sticky="nsew")
+        confirm_password_entry.grid(row=24, column=3, sticky="nsew")
+
+        change_name_button.grid(row=20, column=5, sticky="nsew")
+        change_password_button.grid(row=22, column=5, sticky="nsew")
+        delete_button.grid(row=26, column=3, sticky="nsew")
+
+
     def create_note(self) -> None:
         def add_note(data):
             self.user.create_note(data[0], data[1], data[2], "Arial", 11)

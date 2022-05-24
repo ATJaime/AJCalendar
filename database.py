@@ -174,9 +174,9 @@ class DataBase:
         self.conn.close()
 
     def delete_user(self, field: Any) -> None:
-        self.conn = sql.connect(f"{USERS}.db")
+        self.conn = sql.connect(f"{USERS}")
         self.cursor = self.conn.cursor()
-        self.cursor.execute(f"DELETE FROM '{USERS}' WHERE usuario_id='{field}'")
+        self.cursor.execute(f"DELETE FROM usuarios WHERE usuario_id='{field}'")
         self.conn.commit()
         self.conn.close()
     

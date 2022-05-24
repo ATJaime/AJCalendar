@@ -99,6 +99,14 @@ class User:
     def meetings(self) -> list:
         return self.__meetings
 
+    @username.setter
+    def username(self, username: str) -> None:
+        self.__username = username
+    
+    @password.setter
+    def password(self, password: str) -> None:
+        self.__password.update(password)
+
     def unblock_distractions(self):
         pass
     
