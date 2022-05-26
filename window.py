@@ -12,9 +12,6 @@ from werkzeug.security import check_password_hash
 import tkinter
 from tkinter import PhotoImage
 from tkcalendar import DateEntry
-from sched import scheduler
-import time
-
 windll.shcore.SetProcessDpiAwareness(1)
 
 class LoginWindow(tkinter.Tk): 
@@ -298,6 +295,7 @@ class ContainerWindow(tkinter.Tk):
         self.task_button.grid(row=13, column=1, sticky="nsew")
         self.meet_button.grid(row=16, column=1, sticky="nsew")
         self.score_label.grid(row=20, column=7, sticky="nsew")
+
         temp_h = int(datetime.now().hour)
         temp_m = int(datetime.now().minute)
         self.current_date = tkinter.Label(self, text=f"{datetime.strftime(datetime.now(), '%Y-%m-%d. ')}{temp_h}:{temp_m}")
@@ -305,20 +303,17 @@ class ContainerWindow(tkinter.Tk):
         self.mainloop()
     
     def update_date(self) -> None:
+        temp_h = int(datetime.now().hour)
+        temp_m = int(datetime.now().minute)
         self.current_date.config(text=f"{datetime.strftime(datetime.now(), '%Y-%m-%d. ')}{temp_h}:{temp_m}")
         for meeting in self.user.meetings:
-            print(meeting.meeting_date)
             if self.current_date["text"] == meeting.meeting_date:
                 messagebox.showinfo(message="Tienes una reunión ahora", title="Mensaje")
                 meeting.open_meeting()
                 self.current_date.after(60000, self.update_date)
                 return
-        temp_h = int(datetime.now().hour)
-        temp_m = int(datetime.now().minute)
         self.current_date.after(1000, self.update_date)
                 
-        
-
     def config_grid(self, root: tkinter.Tk) -> None:
         for i in range(0, 40):
             tkinter.Grid.rowconfigure(root, i, weight=1)

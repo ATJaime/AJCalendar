@@ -1,5 +1,4 @@
 import sqlite3 as sql
-from typing import Any
 from task import Task
 from meeting import Meeting
 from note import Note
@@ -157,7 +156,7 @@ class DataBase:
         self.conn.close()
         return data
     
-    def search(self, database_name: str, field: Any) -> list:
+    def search(self, database_name: str, field: any) -> list:
         self.conn = sql.connect(f"{database_name}.db")
         self.cursor = self.conn.cursor()
         self.cursor.execute(f"SELECT * FROM '{database_name}' WHERE usuario_id='{field}'")
@@ -166,14 +165,14 @@ class DataBase:
         self.conn.close()
         return data
     
-    def update(self, user_id: int, field: Any, updated_field: Any) -> None:
+    def update(self, user_id: int, field: any, updated_field: any) -> None:
         self.conn = sql.connect("usuarios.db")
         self.cursor = self.conn.cursor()
         self.cursor.execute(f"UPDATE usuarios set '{field}' = '{updated_field}' WHERE usuario_id={user_id}")
         self.conn.commit()
         self.conn.close()
 
-    def delete_user(self, field: Any) -> None:
+    def delete_user(self, field: any) -> None:
         self.conn = sql.connect(f"{USERS}")
         self.cursor = self.conn.cursor()
         self.cursor.execute(f"DELETE FROM usuarios WHERE usuario_id='{field}'")
