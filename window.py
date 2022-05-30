@@ -492,13 +492,12 @@ class ContainerWindow(tkinter.Tk):
                 self.last_task.config(text=data[0])
 
         def verify_fields():
+            now = datetime.now()
+            c_date = calendar.get_date()
             if name_entry.get().strip(' ') == "":
                 messagebox.showwarning(message="Rellene los campos, por favor", title="Mensaje")
-            elif calendar.get_date().year < datetime.now().year:
-                messagebox.showwarning(message="Ingrese fecha válida", title="Mensaje")
-            elif calendar.get_date().month < datetime.now().month:
-                messagebox.showwarning(message="Ingrese fecha válida", title="Mensaje")
-            elif calendar.get_date().day < datetime.now().day:
+            elif (c_date.year < now.year or (c_date.year == now.year and c_date.month < now.month)
+                or (c_date.year == now.year and c_date.month == now.month and c_date.day < now.day)):
                 messagebox.showwarning(message="Ingrese fecha válida", title="Mensaje")
             else:
                 data = [name_entry.get(), description_entry.get("1.0", "end"), selection.get(), calendar.get_date()]
@@ -583,19 +582,16 @@ class ContainerWindow(tkinter.Tk):
                 self.last_meeting.config(text=data[0])
 
         def verify_fields():
+            c_date = calendar.get_date()
+            now = datetime.now()
             if (name_entry.get().strip(' ') == ""
                 or link_entry.get().strip(' ') == ""):
                 messagebox.showwarning(message="Rellene los campos, por favor", title="Mensaje")
-            elif calendar.get_date().year < datetime.now().year:
+            elif (c_date.year < now.year or (c_date.year == now.year and c_date.month < now.month)
+                or (c_date.year == now.year and c_date.month == now.month and c_date.day < now.day)):
                 messagebox.showwarning(message="Ingrese fecha válida", title="Mensaje")
-            elif calendar.get_date().month < datetime.now().month:
-                messagebox.showwarning(message="Ingrese fecha válida", title="Mensaje")
-            elif calendar.get_date().day < datetime.now().day:
-                messagebox.showwarning(message="Ingrese fecha válida", title="Mensaje")
-            elif (calendar.get_date().day == datetime.now().day and int(hour.get()) < datetime.now().hour):
+            elif int(hour.get()) < now.hour or (int(hour.get()) == now.hour and int(minute.get()) < now.minute):
                 messagebox.showwarning(message="Ingrese hora válida", title="Mensaje")
-            elif (int(hour.get()) == datetime.now().hour and int(minute.get()) < datetime.now().minute):
-                messagebox.showwarning(message="Ingrese minuto válido", title="Mensaje")
             else:
                 data = [
                     name_entry.get(), 

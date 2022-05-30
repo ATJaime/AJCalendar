@@ -59,11 +59,11 @@ class Preferences{
 
 Item <|-- Task
 Item <|-- Meeting
-Item <|-- Notes
+Item <|-- Note
 
 User *-- Task
 User *--- Meeting
-User *--- Notes
+User *--- Note
 
 User *- Password
 
