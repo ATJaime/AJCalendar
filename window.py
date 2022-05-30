@@ -736,7 +736,7 @@ class ContainerWindow(tkinter.Tk):
             try:
                 index = self.get_index_tree(note_tree, self.user.notes)
                 note_tree.delete(note_tree.selection())
-                DataBase().delete_item("tareas", self.user.user_id, self.user.notes[index].name)
+                DataBase().delete_item("notas", self.user.user_id, self.user.notes[index].name)
                 self.user.remove_note(self.user.notes[index])
             except:
                 messagebox.showwarning(message="Por favor, seleccione el elemento a eliminar", title="Mensaje")
