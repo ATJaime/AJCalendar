@@ -17,12 +17,9 @@ class User{
     create_task()
     create_meeting()
     create_note()
-    block_distractions()
     remove_task()
     remove_meeting()
     remove_note()
-    unblock_distractions()
-    update_preferences()  
 }
 
 abstract class "Item"{
@@ -37,8 +34,6 @@ abstract class "Item"{
 class Note{
     font: font 
     font_size: double
-    
-    set_font()
 }
 
 class Task{
@@ -49,12 +44,8 @@ class Task{
 class Meeting{
     link: str
     meeting_date: date
+    go_to_meeting()
 }
-
-class Preferences{
-
-}
-
 
 
 Item <|-- Task
@@ -66,8 +57,5 @@ User *--- Meeting
 User *--- Note
 
 User *- Password
-
-User --> Preferences
-
 
 @enduml
