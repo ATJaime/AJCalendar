@@ -267,19 +267,11 @@ class ContainerWindow(tkinter.Tk):
                                             text="Salir",
                                             command=self.log_out,
                                         )
-        try:                                
-            self.last_note = tkinter.Button(self, text=self.user.notes[-1])
-        except:
-            self.last_note = tkinter.Button(self, text="NO HAY NOTAS")
-        try:
-            self.last_task = tkinter.Button(self, text=self.user.tasks[-1])
-        except:
-            self.last_task = tkinter.Button(self, text="NO HAY TAREAS")
+        self.last_note = tkinter.Button(self)
+        self.last_task = tkinter.Button(self)
+        self.last_meeting = tkinter.Button(self)
 
-        try:
-            self.last_meeting = tkinter.Button(self, text=self.user.meetings[-1])
-        except:
-            self.last_meeting = tkinter.Button(self, text="NO HAY REUNIONES")
+        self.set_labels()
 
         self.last_note.config(font=("Arial", 18), bg="#2E2F33", fg="white", borderwidth=0, command=self.note_window)
         self.last_task.config(font=("Arial", 18), bg="#2E2F33", fg="white", borderwidth=0, command=self.task_window)
@@ -313,6 +305,22 @@ class ContainerWindow(tkinter.Tk):
                 self.current_date.after(60000, self.update_date)
                 return
         self.current_date.after(1000, self.update_date)
+    
+    def set_labels(self) -> None:
+        try:                                
+            self.last_note.config(text=self.user.notes[-1])
+        except:
+            self.last_note.config(text="NO HAY NOTAS")
+            
+        try:
+            self.last_task.config(text=self.user.tasks[-1])
+        except:
+            self.last_task.config(text="NO HAY TAREAS")
+
+        try:
+            self.last_meeting.config(text=self.user.meetings[-1])
+        except:
+            self.last_meeting.config(text="NO HAY REUNIONES")
                 
     def config_grid(self, root: tkinter.Tk) -> None:
         for i in range(0, 40):
@@ -415,7 +423,7 @@ class ContainerWindow(tkinter.Tk):
                 db.insert_note(self.user.user_id, Note(data[0], data[1], data[2], "Arial", 11))
                 note_window.destroy()
             finally:
-                self.last_note.config(text=data[0])
+                self.set_labels()
                 self.user.earn_points(5)
                 self.score_label.config(text=f"Puntos: {self.user.points}")
                 DataBase().update(self.user.user_id, "puntaje", self.user.points)
@@ -489,7 +497,7 @@ class ContainerWindow(tkinter.Tk):
                 db.insert_task(self.user.user_id, Task(data[0], data[1], data[2], data[3], False))
                 task_window.destroy()
             finally:
-                self.last_task.config(text=data[0])
+                self.set_labels()
 
         def verify_fields():
             now = datetime.now()
@@ -579,7 +587,7 @@ class ContainerWindow(tkinter.Tk):
                 db.insert_meeting(self.user.user_id, Meeting(data[0], data[1], data[2], data[3], data[4]))
                 meeting_window.destroy()
             finally:
-                self.last_meeting.config(text=data[0])
+                self.set_labels()
 
         def verify_fields():
             c_date = calendar.get_date()
@@ -734,6 +742,7 @@ class ContainerWindow(tkinter.Tk):
                 note_tree.delete(note_tree.selection())
                 DataBase().delete_item("notas", self.user.user_id, self.user.notes[index].name)
                 self.user.remove_note(self.user.notes[index])
+                self.set_labels()
             except:
                 messagebox.showwarning(message="Por favor, seleccione el elemento a eliminar", title="Mensaje")
         note_window = tkinter.Toplevel(self)
@@ -782,6 +791,7 @@ class ContainerWindow(tkinter.Tk):
                 task_tree.delete(task_tree.selection())
                 DataBase().delete_item("tareas", self.user.user_id, self.user.tasks[index].name)
                 self.user.remove_task(self.user.tasks[index])
+                self.set_labels()
             except:
                 messagebox.showwarning(message="Por favor, seleccione el elemento a eliminar", title="Mensaje")
         task_window = tkinter.Toplevel(self)
@@ -835,6 +845,7 @@ class ContainerWindow(tkinter.Tk):
                 meeting_tree.delete(meeting_tree.selection())
                 DataBase().delete_item("reuniones", self.user.user_id, self.user.meetings[index].name)
                 self.user.remove_meeting(self.user.meetings[index])
+                self.set_labels()
             except:
                 messagebox.showwarning(message="Por favor, seleccione el elemento a eliminar", title="Mensaje")
         meeting_window = tkinter.Toplevel(self)
