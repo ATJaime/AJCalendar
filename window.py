@@ -257,14 +257,21 @@ class ContainerWindow(tkinter.Tk):
                                                 borderwidth=0,
                                                 command=self.create_meeting,
                                             )
-
+        self.settings_image = PhotoImage(file="assets/images/settings.png")
         self.config_button = tkinter.Button(self,
-                                            text="O",
+                                            image=self.settings_image,
+                                            bg="#2E2F33",
+                                            activebackground="#2E2F33",
+                                            borderwidth=0,
                                             command=self.config_window
                                         )
 
+        self.log_out_image = PhotoImage(file="assets/images/log_out.png")
         self.log_out_button = tkinter.Button(self,
-                                            text="Salir",
+                                            image=self.log_out_image,
+                                            bg="#2E2F33",
+                                            activebackground="#2E2F33",
+                                            borderwidth=0,
                                             command=self.log_out,
                                         )
         self.last_note = tkinter.Button(self)
