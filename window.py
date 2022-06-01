@@ -17,7 +17,6 @@ windll.shcore.SetProcessDpiAwareness(1)
 class LoginWindow(tkinter.Tk): 
     def __init__(self) -> None:
         super().__init__()
-
         self.geometry("900x600")
         self.title("AJCalendar")
         self.resizable(False, False)
@@ -605,7 +604,9 @@ class ContainerWindow(tkinter.Tk):
             elif (c_date.year < now.year or (c_date.year == now.year and c_date.month < now.month)
                 or (c_date.year == now.year and c_date.month == now.month and c_date.day < now.day)):
                 messagebox.showwarning(message="Ingrese fecha válida", title="Mensaje")
-            elif int(hour.get()) < now.hour or (int(hour.get()) == now.hour and int(minute.get()) < now.minute):
+            elif (c_date.day == now.day and 
+                (int(hour.get()) < now.hour or 
+                (int(hour.get()) == now.hour and int(minute.get()) < now.minute))):
                 messagebox.showwarning(message="Ingrese hora válida", title="Mensaje")
             else:
                 data = [
